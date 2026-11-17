@@ -11,12 +11,34 @@
 :root{--font-anthropic-serif:"Noto Serif KR",Georgia,serif;--font-anthropic-sans:"Pretendard","Noto Sans KR",-apple-system,"Segoe UI",sans-serif;
 --cds-font-size-title:28px;--cds-font-size-heading:19px;--cds-font-size-body:15px;--cds-font-size-caption:12.5px;--cds-font-weight-medium:600;
 --cds-gap-xs:6px;--cds-gap-sm:12px;--cds-gap-md:18px;--cds-gap-lg:28px;--cds-gap-xl:40px;--cds-pad-md:14px;--cds-pad-lg:18px;--cds-radius:10px;
---color-bg:#f6f5f1;--color-panel:#ffffff;--color-fg:#1c1c1a;--color-fg-muted:#6b6a65;--color-border-line:#e2e0d9;--color-bad:#c0392b;--color-ok:#2a8f5c;
---cds-surface-popover:#ffffff;--cds-border:#d8d6cf;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.12);--cds-text-secondary:#6b6a65;--cds-chart-grid:#ebe9e3;--cds-chart-axis:#c9c7c0;--cds-chart-reference:#9a988f}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--color-bg:#191917;--color-panel:#232321;--color-fg:#ecebe6;--color-fg-muted:#a09e96;--color-border-line:#34342f;--color-bad:#e8705f;--color-ok:#5cc08a;
---cds-surface-popover:#2b2b28;--cds-border:#44443e;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.5);--cds-text-secondary:#a09e96;--cds-chart-grid:#2f2f2b;--cds-chart-axis:#55554f;--cds-chart-reference:#8a8880}}
+--color-bg:#f3f5f9;--color-panel:#ffffff;--color-fg:#1f2937;--color-fg-muted:#6b7280;--color-border-line:#e5e9f0;--color-bad:#dc2626;--color-ok:#059669;--color-accent:#3b82f6;--color-accent-soft:#e8f0fe;--card-shadow:0 1px 2px rgba(16,24,40,.04),0 4px 14px rgba(16,24,40,.06);
+--cds-surface-popover:#ffffff;--cds-border:#e5e9f0;--cds-shadow-popover:0 4px 16px rgba(16,24,40,.14);--cds-text-secondary:#6b7280;--cds-chart-grid:#eef1f6;--cds-chart-axis:#d1d5db;--cds-chart-reference:#9ca3af}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--color-bg:#0f172a;--color-panel:#1e293b;--color-fg:#e5e7eb;--color-fg-muted:#9ca3af;--color-border-line:#334155;--color-bad:#f87171;--color-ok:#34d399;--color-accent:#60a5fa;--color-accent-soft:#1e3a5f;--card-shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);
+--cds-surface-popover:#273449;--cds-border:#3b4a60;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.5);--cds-text-secondary:#9ca3af;--cds-chart-grid:#2b3a50;--cds-chart-axis:#475569;--cds-chart-reference:#64748b}}
 html{background:var(--color-bg)}body{margin:0;padding:24px 16px 48px;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans);font-size:var(--cds-font-size-body);line-height:1.5;-webkit-text-size-adjust:100%}
 .pl .stamp{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);margin:0 0 var(--cds-gap-md)}
+.pl .head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 16px}
+.pl .head .badge{font-size:var(--cds-font-size-caption);color:var(--color-accent);background:var(--color-accent-soft);border-radius:999px;padding:5px 12px;white-space:nowrap;margin-top:6px}
+.pl h1{font-family:var(--font-anthropic-sans) !important;font-weight:700 !important;font-size:22px !important;letter-spacing:-.01em}
+.pl h2{font-size:17px !important}
+.pl .card,.pl .kpi,.pl .tile{border:0 !important;box-shadow:var(--card-shadow);border-radius:14px !important}
+.pl .ov{border:0 !important;padding:0 !important;background:transparent !important}
+.pl .nav a{border:0;box-shadow:var(--card-shadow)}
+.pl .kpi{display:grid;grid-template-columns:1fr auto;grid-template-areas:"k i" "v i" "s i";column-gap:8px;padding:16px 18px !important}
+.pl .kpi .k{grid-area:k}.pl .kpi .v{grid-area:v;font-family:var(--font-anthropic-sans) !important;font-weight:700;font-size:26px !important}.pl .kpi .s{grid-area:s}
+.pl .kpi .ic{grid-area:i;width:34px;height:34px;border-radius:9px;background:var(--color-accent-soft);display:flex;align-items:center;justify-content:center;color:var(--color-accent)}
+.pl .kpi .ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pl .kpi .ic.g{background:#dcfce7;color:#16a34a}.pl .kpi .ic.o{background:#fef3c7;color:#d97706}.pl .kpi .ic.p{background:#ede9fe;color:#7c3aed}.pl .kpi .ic.r{background:#fee2e2;color:#dc2626}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pl .kpi .ic.g{background:#14532d;color:#86efac}:root:not([data-theme="light"]) .pl .kpi .ic.o{background:#451a03;color:#fcd34d}:root:not([data-theme="light"]) .pl .kpi .ic.p{background:#2e1065;color:#c4b5fd}:root:not([data-theme="light"]) .pl .kpi .ic.r{background:#450a0a;color:#fca5a5}}
+.pl .tile .v{font-family:var(--font-anthropic-sans) !important;font-weight:700}
+.pl .actions .num{font-family:var(--font-anthropic-sans) !important;font-weight:700;color:var(--color-accent)}
+.pl .msgs div{border-left-color:var(--color-accent)}
+.pl .chart .tip{border-radius:8px}
+.pl .donut{display:flex;align-items:center;gap:14px;min-height:150px}
+.pl .donut svg{width:150px;height:150px;flex:none}
+.pl .donut .dl{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);display:grid;gap:4px}
+.pl .donut .dl span{display:flex;align-items:center;gap:6px}.pl .donut .dl i{width:10px;height:10px;border-radius:3px;display:inline-block}.pl .donut .dl b{color:var(--color-fg);font-weight:600;margin-left:auto;padding-left:10px}
+.pl .grid3{gap:var(--cds-gap-md) !important}
 
 .pl{max-width:1080px;margin:0 auto;font-variant-numeric:tabular-nums}
 .pl h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0 0 var(--cds-gap-xs)}
@@ -82,22 +104,28 @@ html{background:var(--color-bg)}body{margin:0;padding:24px 16px 48px;background:
 <body>
 
 <div class="pl" id="top">
-  <h1>플룸 현장 판매 분석</h1>
-  <p class="stamp">자료 기준 <span id="updated">—</span></p>
+  <div class="head"><div><h1>플룸 현장 판매 분석</h1>
+  <p class="stamp">자료 기준 <span id="updated">—</span></p></div>
+  <div class="badge">총 <span data-draw="num" data-source="summary_all" data-field="제출건수" data-row="0">—</span>건 판매 기록 분석</div></div>
   <p class="lead" data-read lang="ko">4월 13일부터 11월 16일까지 <b data-draw="num" data-source="summary_all" data-field="운영일수" data-row="0">—</b>일 동안 <b data-draw="num" data-source="summary_all" data-field="총판매" data-row="0">—</b>대를 팔았습니다. 월 판매는 2,300~3,000대 사이를 오갔지만 팀 하나가 하루에 파는 수는 4월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</b>대에서 10월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</b>대로 꾸준히 내려왔습니다. 추천 목록 점포가 "3배"를 판다는 11월 결과는 검증해 보니 대부분 순환 효과였고, 11월 전에 확정된 추천 점포의 실제 이점은 같은 팀 기준 하루 0.4대 정도였습니다.</p>
 
   <section class="ov" id="overview">
     <h2>한눈에 보기</h2>
     <div class="nav"><a href="#long-volume">A 월별 흐름</a><a href="#long-recommend">B 추천 검증</a><a href="#long-store">C 점포</a><a href="#long-ops">D 운영 리듬</a><a href="#long-mix">E 상품·고객</a><a href="#long-people">F 사람</a><a href="#nov-intro">11월 상세</a><a href="#actions">행동 제안</a></div>
     <div class="kpis">
-      <div class="kpi"><div class="k">전체 판매 (4~11월)</div><div class="v"><span data-draw="num" data-source="summary_all" data-field="총판매" data-row="0">—</span><span class="u">대</span></div><div class="s"><span data-draw="num" data-source="summary_all" data-field="운영일수" data-row="0">—</span>일 운영</div></div>
-      <div class="kpi"><div class="k">11월 판매 (3~17일)</div><div class="v"><span data-draw="num" data-source="summary" data-field="판매대수" data-row="0">—</span><span class="u">대</span></div><div class="s">하루 평균 <span data-draw="num" data-source="monthly" data-field="일평균" data-where="월=11월" data-fmt=".0f">—</span>대</div></div>
-      <div class="kpi"><div class="k">팀·일당 판매, 4월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">10월 <span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</span>대</div></div>
-      <div class="kpi"><div class="k">11월 활동 팀·일당</div><div class="v"><span data-draw="num" data-source="summary" data-field="팀일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s bad">무판매 <span data-draw="num" data-source="summary" data-field="무판매율" data-row="0" data-fmt=".0f">—</span>%</div></div>
-      <div class="kpi"><div class="k">추천 점포 실제 이점 (팀 내)</div><div class="v"><span data-draw="num" data-source="rec_outofsample_team" data-field="추천일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">추천 외 <span data-draw="num" data-source="rec_outofsample_team" data-field="추천외일평균" data-row="0" data-fmt=".2f">—</span>대</div></div>
-      <div class="kpi"><div class="k">20일 이상 활동 에이전트</div><div class="v"><span data-draw="num" data-source="summary_all" data-field="20일이상" data-row="0">—</span><span class="u">명</span></div><div class="s">판매의 <span data-draw="num" data-source="summary_all" data-field="20일이상판매비중" data-row="0" data-fmt=".0f">—</span>% · 전체 <span data-draw="num" data-source="summary_all" data-field="에이전트수" data-row="0">—</span>명</div></div>
-      <div class="kpi"><div class="k">상위 10% 점포 판매 비중</div><div class="v"><span data-draw="num" data-source="store_concentration" data-field="상위10퍼센트점포판매비중" data-row="0" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s">누적 <span data-draw="num" data-source="store_concentration" data-field="점포수" data-row="0">—</span>곳</div></div>
-      <div class="kpi"><div class="k">리필스틱 동반 구매, 11월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=11월" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s bad">8월 <span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=8월" data-fmt=".0f">—</span>%</div></div>
+      <div class="kpi"><div class="k">전체 판매 (4~11월)</div><div class="v"><span data-draw="num" data-source="summary_all" data-field="총판매" data-row="0">—</span><span class="u">대</span></div><div class="s"><span data-draw="num" data-source="summary_all" data-field="운영일수" data-row="0">—</span>일 운영</div><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg></div></div>
+      <div class="kpi"><div class="k">11월 판매 (3~17일)</div><div class="v"><span data-draw="num" data-source="summary" data-field="판매대수" data-row="0">—</span><span class="u">대</span></div><div class="s">하루 평균 <span data-draw="num" data-source="monthly" data-field="일평균" data-where="월=11월" data-fmt=".0f">—</span>대</div><div class="ic g"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div></div>
+      <div class="kpi"><div class="k">팀·일당 판매, 4월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">10월 <span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</span>대</div><div class="ic o"><svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 4 7-8"/><path d="M16 7h4v4"/></svg></div></div>
+      <div class="kpi"><div class="k">11월 활동 팀·일당</div><div class="v"><span data-draw="num" data-source="summary" data-field="팀일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s bad">무판매 <span data-draw="num" data-source="summary" data-field="무판매율" data-row="0" data-fmt=".0f">—</span>%</div><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="16" y="3" width="4" height="17"/></svg></div></div>
+      <div class="kpi"><div class="k">추천 점포 실제 이점 (팀 내)</div><div class="v"><span data-draw="num" data-source="rec_outofsample_team" data-field="추천일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">추천 외 <span data-draw="num" data-source="rec_outofsample_team" data-field="추천외일평균" data-row="0" data-fmt=".2f">—</span>대</div><div class="ic p"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div></div>
+      <div class="kpi"><div class="k">20일 이상 활동 에이전트</div><div class="v"><span data-draw="num" data-source="summary_all" data-field="20일이상" data-row="0">—</span><span class="u">명</span></div><div class="s">판매의 <span data-draw="num" data-source="summary_all" data-field="20일이상판매비중" data-row="0" data-fmt=".0f">—</span>% · 전체 <span data-draw="num" data-source="summary_all" data-field="에이전트수" data-row="0">—</span>명</div><div class="ic g"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A5 5 0 0 1 21 19"/></svg></div></div>
+      <div class="kpi"><div class="k">상위 10% 점포 판매 비중</div><div class="v"><span data-draw="num" data-source="store_concentration" data-field="상위10퍼센트점포판매비중" data-row="0" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s">누적 <span data-draw="num" data-source="store_concentration" data-field="점포수" data-row="0">—</span>곳</div><div class="ic o"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg></div></div>
+      <div class="kpi"><div class="k">리필스틱 동반 구매, 11월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=11월" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s bad">8월 <span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=8월" data-fmt=".0f">—</span>%</div><div class="ic r"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M7 9h10"/></svg></div></div>
+    </div>
+    <div class="grid3" style="margin-bottom:var(--cds-gap-md)">
+      <div class="card"><h3>11월 인력사별 판매 비중</h3><div class="donut" data-draw="donut" data-source="agency" data-label="인력사" data-value="판매"></div></div>
+      <div class="card"><h3>11월 색상별 판매 비중</h3><div class="donut" data-draw="donut" data-source="color" data-label="색상" data-value="판매"></div></div>
+      <div class="card"><h3>11월 기존 사용 제품 비중</h3><div class="donut" data-draw="donut" data-source="product" data-label="사용제품" data-value="판매"></div></div>
     </div>
     <div class="grid3">
       <div class="card"><h3>월별 판매 (인력사별 누적)</h3>
@@ -366,7 +394,7 @@ html{background:var(--color-bg)}body{margin:0;padding:24px 16px 48px;background:
 const dash = (() => {
   const DATA = {}, draws = {}, after = [];
   return {
-    colors: ['#2f6fdb', '#e8893c', '#2a9d8f', '#8e5bd8', '#c74b50', '#7f8c8d'],
+    colors: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#9ca3af'],
     data: id => (id in DATA) ? { status: 'ok', data: DATA[id] } : { status: 'missing' },
     draw: (k, fn) => { draws[k] = fn; },
     onData: fn => after.push(fn),
@@ -537,9 +565,12 @@ const dash = (() => {
     const ends = [];
     series.forEach((s, si) => {
       const pts = data.filter(d => d[s] != null);
-      svg.append('path').datum(pts).attr('fill', 'none').attr('stroke-width', 2).style('stroke', color(si))
-        .attr('d', d3.line().x(d => x(d[X])).y(d => y(d[s] * sc(si))));
-      if (dots) svg.append('g').selectAll('circle').data(pts).join('circle').attr('cx', d => x(d[X])).attr('cy', d => y(d[s] * sc(si))).attr('r', 3.5).style('fill', color(si)).style('stroke', 'var(--color-panel)').attr('stroke-width', 1.5);
+      const curve = d3.curveMonotoneX;
+      if (series.length === 1) svg.append('path').datum(pts).attr('fill', color(si)).attr('fill-opacity', 0.12)
+        .attr('d', d3.area().curve(curve).x(d => x(d[X])).y0(y(0)).y1(d => y(d[s] * sc(si))));
+      svg.append('path').datum(pts).attr('fill', 'none').attr('stroke-width', 2.2).style('stroke', color(si))
+        .attr('d', d3.line().curve(curve).x(d => x(d[X])).y(d => y(d[s] * sc(si))));
+      if (dots) svg.append('g').selectAll('circle').data(pts).join('circle').attr('cx', d => x(d[X])).attr('cy', d => y(d[s] * sc(si))).attr('r', 4).style('fill', color(si)).style('stroke', 'var(--color-panel)').attr('stroke-width', 2);
       const last = pts[pts.length - 1];
       if (last) ends.push({ x: x(last[X]) + 6, y: y(last[s] * sc(si)), label: f(si, last[s]) });
     });
@@ -557,6 +588,28 @@ const dash = (() => {
         showTip(el, t, ev, [line(xl(d[X])), ...series.map((s, si) => line(s, d[s] == null ? '—' : f(si, d[s]), 's'))]);
       })
       .on('mouseleave', () => { t.hidden = true; guide.style('opacity', 0); });
+  });
+
+  // 도넛 (비중)
+  dash.draw('donut', (el) => {
+    const rows = rowsOf(el.dataset.source);
+    el.replaceChildren();
+    if (!rows || !rows.length) return;
+    const L = el.dataset.label, V = el.dataset.value;
+    const data = rows.map(r => ({ label: String(r[L]), value: +r[V] || 0 })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+    const total = d3.sum(data, d => d.value) || 1;
+    const R = 75, svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${R * 2} ${R * 2}`).attr('role', 'img').attr('aria-label', `${L}별 ${V} 비중`);
+    const g = svg.append('g').attr('transform', `translate(${R},${R})`);
+    const arc = d3.arc().innerRadius(R * 0.58).outerRadius(R).cornerRadius(3).padAngle(0.02);
+    const t = tipIn(el);
+    g.selectAll('path').data(d3.pie().value(d => d.value).sort(null)(data)).join('path').attr('d', arc).style('fill', (d, i) => color(i))
+      .on('mousemove', (ev, d) => showTip(el, t, ev, [line(d.data.label), line(V, fmtOf(',')(d.data.value) + ` (${(d.data.value / total * 100).toFixed(0)}%)`, 's')]))
+      .on('mouseleave', () => { t.hidden = true; });
+    g.append('text').attr('text-anchor', 'middle').attr('y', -2).attr('class', 'val').style('font-size', '18px').style('font-weight', '700').text(fmtOf(',')(total));
+    g.append('text').attr('text-anchor', 'middle').attr('y', 16).style('font-size', '11px').text('합계');
+    const dl = document.createElement('div'); dl.className = 'dl';
+    data.forEach((d, i) => { const s = document.createElement('span'); const ic = document.createElement('i'); ic.style.background = color(i); const b = document.createElement('b'); b.textContent = (d.value / total * 100).toFixed(0) + '%'; s.append(ic, document.createTextNode(d.label), b); dl.appendChild(s); });
+    el.appendChild(dl);
   });
 
   // 범례 색
