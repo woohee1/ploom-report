@@ -1,0 +1,59 @@
+name: 자료 갱신
+
+on:
+  schedule:
+    - cron: "0 23 * * *"   # 매일 08:00 한국 시간
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas openpyxl
+
+      - name: 시트 내려받기
+        env:
+          PLOOM_SHEET_URL: ${{ secrets.PLOOM_SHEET_URL }}
+          PLOOM_SHEET_KEY: ${{ secrets.PLOOM_SHEET_KEY }}
+          PLOOM_SALES_TAB: ${{ vars.PLOOM_SALES_TAB }}
+        run: python scripts/fetch_sheets.py
+
+      - name: 집계
+        run: |
+          python scripts/build.py
+          python scripts/export.py
+          python scripts/publish.py "$(cat work/data/fetched_at.txt)"
+
+      - name: 판매대수 확인 (줄었으면 중단)
+        run: |
+          python - <<'EOF'
+          import json, subprocess, sys
+          new = json.load(open("docs/data/summary.json", encoding="utf-8"))["rows"][0]["판매대수"]
+          try:
+              old = json.loads(subprocess.check_output(["git", "show", "HEAD:docs/data/summary.json"]).decode("utf-8"))["rows"][0]["판매대수"]
+          except Exception:
+              old = 0
+          print("판매대수 이전", old, "→ 지금", new)
+          if new <= 0 or new < old:
+              sys.exit("판매대수가 0이거나 줄었습니다. 시트 상태를 확인하세요. 갱신 중단.")
+          EOF
+
+      - name: 커밋·푸시
+        run: |
+          git config user.name "자동 갱신"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/data
+          if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
+          git commit -m "자료 갱신 $(cat work/data/fetched_at.txt)"
+          git push
