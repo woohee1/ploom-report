@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>플룸 현장 판매 분석</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600&family=Noto+Serif+KR:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{--font-anthropic-serif:"Noto Serif KR",Georgia,serif;--font-anthropic-sans:"Pretendard","Noto Sans KR",-apple-system,"Segoe UI",sans-serif;
+--cds-font-size-title:28px;--cds-font-size-heading:19px;--cds-font-size-body:15px;--cds-font-size-caption:12.5px;--cds-font-weight-medium:600;
+--cds-gap-xs:6px;--cds-gap-sm:12px;--cds-gap-md:18px;--cds-gap-lg:28px;--cds-gap-xl:40px;--cds-pad-md:14px;--cds-pad-lg:18px;--cds-radius:10px;
+--color-bg:#f6f5f1;--color-panel:#ffffff;--color-fg:#1c1c1a;--color-fg-muted:#6b6a65;--color-border-line:#e2e0d9;--color-bad:#c0392b;--color-ok:#2a8f5c;
+--cds-surface-popover:#ffffff;--cds-border:#d8d6cf;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.12);--cds-text-secondary:#6b6a65;--cds-chart-grid:#ebe9e3;--cds-chart-axis:#c9c7c0;--cds-chart-reference:#9a988f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--color-bg:#191917;--color-panel:#232321;--color-fg:#ecebe6;--color-fg-muted:#a09e96;--color-border-line:#34342f;--color-bad:#e8705f;--color-ok:#5cc08a;
+--cds-surface-popover:#2b2b28;--cds-border:#44443e;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.5);--cds-text-secondary:#a09e96;--cds-chart-grid:#2f2f2b;--cds-chart-axis:#55554f;--cds-chart-reference:#8a8880}}
+html{background:var(--color-bg)}body{margin:0;padding:24px 16px 48px;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans);font-size:var(--cds-font-size-body);line-height:1.5;-webkit-text-size-adjust:100%}
+.pl .stamp{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);margin:0 0 var(--cds-gap-md)}
+
+.pl{max-width:1080px;margin:0 auto;font-variant-numeric:tabular-nums}
+.pl h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0 0 var(--cds-gap-xs)}
+.pl .lead{color:var(--color-fg);font-size:var(--cds-font-size-body);margin:0 0 var(--cds-gap-lg);max-width:70ch;line-height:1.55}
+.pl .lead b{font-weight:var(--cds-font-weight-medium)}
+.pl h2{font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium);margin:var(--cds-gap-xl) 0 var(--cds-gap-xs);text-wrap:balance}
+.pl h3{font-size:var(--cds-font-size-body);font-weight:var(--cds-font-weight-medium);margin:var(--cds-gap-md) 0 var(--cds-gap-xs);color:var(--color-fg)}
+.pl p{max-width:72ch;line-height:1.55;margin:0 0 var(--cds-gap-sm)}
+.pl .muted{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
+.pl .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--cds-gap-sm);margin-bottom:var(--cds-gap-lg)}
+.pl .tile{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-md)}
+.pl .tile .k{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin-bottom:4px}
+.pl .tile .v{font-family:var(--font-anthropic-serif);font-weight:400;font-size:28px;line-height:1.1}
+.pl .tile .u{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin-left:2px}
+.pl .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--cds-gap-md)}
+.pl .card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);min-width:0}
+.pl .card h3{margin-top:0}
+.pl .chart{position:relative;min-height:120px}
+.pl .chart svg{display:block;width:100%;overflow:visible}
+.pl .chart .tip{position:absolute;pointer-events:none;background:var(--cds-surface-popover);border:1px solid var(--cds-border);box-shadow:var(--cds-shadow-popover);border-radius:var(--cds-radius);padding:6px 8px;font-size:var(--cds-font-size-caption);color:var(--color-fg);white-space:nowrap;z-index:2}
+.pl .chart .tip .s{color:var(--cds-text-secondary)}
+.pl .chart text{fill:var(--cds-text-secondary);font-size:var(--cds-font-size-caption);font-family:var(--font-anthropic-sans)}
+.pl .chart text.val{fill:var(--color-fg)}
+.pl .chart .grid line{stroke:var(--cds-chart-grid)}
+.pl .chart .axis line,.pl .chart .axis path{stroke:var(--cds-chart-axis)}
+.pl .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin-bottom:6px}
+.pl .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.pl .tw{overflow-x:auto}
+.pl table{border-collapse:collapse;width:100%;font-size:var(--cds-font-size-caption)}
+.pl th,.pl td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--color-border-line);white-space:nowrap}
+.pl th{color:var(--color-fg-muted);font-weight:var(--cds-font-weight-medium)}
+.pl td.n,.pl th.n{text-align:right}
+.pl .pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;border:1px solid var(--color-border-line);color:var(--color-fg-muted)}
+.pl .pill.bad{color:var(--color-bad);border-color:var(--color-bad)}
+.pl .pill.ok{color:var(--color-ok);border-color:var(--color-ok)}
+.pl .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--cds-gap-sm)}
+.pl .actions .card p{margin:0}
+.pl .actions .num{font-family:var(--font-anthropic-serif);font-size:22px;color:var(--color-fg-muted);margin-bottom:4px}
+.pl details{margin-top:var(--cds-gap-lg);color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
+.pl details summary{cursor:pointer;color:var(--color-fg)}
+.pl details li{margin-bottom:4px}
+.pl .chart.sm{min-height:90px}
+.pl .ov{border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);margin-bottom:var(--cds-gap-xl);background:var(--color-bg)}
+.pl .ov h2{margin-top:0}
+.pl .nav{display:flex;flex-wrap:wrap;gap:6px;margin:var(--cds-gap-sm) 0 var(--cds-gap-md)}
+.pl .nav a{font-size:var(--cds-font-size-caption);color:var(--color-fg);text-decoration:none;border:1px solid var(--color-border-line);border-radius:999px;padding:3px 10px;background:var(--color-panel)}
+.pl .nav a:hover{border-color:var(--color-fg-muted)}
+.pl .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--cds-gap-sm);margin-bottom:var(--cds-gap-md)}
+.pl .kpi{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-md)}
+.pl .kpi .k{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin-bottom:4px}
+.pl .kpi .v{font-family:var(--font-anthropic-serif);font-weight:400;font-size:24px;line-height:1.1}
+.pl .kpi .u{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin-left:2px}
+.pl .kpi .s{font-size:11px;color:var(--color-fg-muted);margin-top:4px}
+.pl .kpi .s.bad{color:var(--color-bad)}.pl .kpi .s.ok{color:var(--color-ok)}
+.pl .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--cds-gap-sm)}
+.pl .grid3 .card{padding:var(--cds-pad-md)}
+.pl .grid3 .card h3{font-size:var(--cds-font-size-caption);margin-bottom:4px}
+.pl .msgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--cds-gap-sm);margin:var(--cds-gap-md) 0 0}
+.pl .msgs div{border-left:3px solid var(--color-fg-muted);padding:2px 10px;font-size:var(--cds-font-size-caption);line-height:1.5}
+.pl .msgs b{font-weight:var(--cds-font-weight-medium)}
+</style>
+</head>
+<body>
+
+<div class="pl" id="top">
+  <h1>플룸 현장 판매 분석</h1>
+  <p class="stamp">자료 기준 <span id="updated">—</span></p>
+  <p class="lead" data-read lang="ko">4월 13일부터 11월 16일까지 <b data-draw="num" data-source="summary_all" data-field="운영일수" data-row="0">—</b>일 동안 <b data-draw="num" data-source="summary_all" data-field="총판매" data-row="0">—</b>대를 팔았습니다. 월 판매는 2,300~3,000대 사이를 오갔지만 팀 하나가 하루에 파는 수는 4월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</b>대에서 10월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</b>대로 꾸준히 내려왔습니다. 추천 목록 점포가 "3배"를 판다는 11월 결과는 검증해 보니 대부분 순환 효과였고, 11월 전에 확정된 추천 점포의 실제 이점은 같은 팀 기준 하루 0.4대 정도였습니다.</p>
+
+  <section class="ov" id="overview">
+    <h2>한눈에 보기</h2>
+    <div class="nav"><a href="#long-volume">A 월별 흐름</a><a href="#long-recommend">B 추천 검증</a><a href="#long-store">C 점포</a><a href="#long-ops">D 운영 리듬</a><a href="#long-mix">E 상품·고객</a><a href="#long-people">F 사람</a><a href="#nov-intro">11월 상세</a><a href="#actions">행동 제안</a></div>
+    <div class="kpis">
+      <div class="kpi"><div class="k">전체 판매 (4~11월)</div><div class="v"><span data-draw="num" data-source="summary_all" data-field="총판매" data-row="0">—</span><span class="u">대</span></div><div class="s"><span data-draw="num" data-source="summary_all" data-field="운영일수" data-row="0">—</span>일 운영</div></div>
+      <div class="kpi"><div class="k">11월 판매 (3~17일)</div><div class="v"><span data-draw="num" data-source="summary" data-field="판매대수" data-row="0">—</span><span class="u">대</span></div><div class="s">하루 평균 <span data-draw="num" data-source="monthly" data-field="일평균" data-where="월=11월" data-fmt=".0f">—</span>대</div></div>
+      <div class="kpi"><div class="k">팀·일당 판매, 4월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">10월 <span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</span>대</div></div>
+      <div class="kpi"><div class="k">11월 활동 팀·일당</div><div class="v"><span data-draw="num" data-source="summary" data-field="팀일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s bad">무판매 <span data-draw="num" data-source="summary" data-field="무판매율" data-row="0" data-fmt=".0f">—</span>%</div></div>
+      <div class="kpi"><div class="k">추천 점포 실제 이점 (팀 내)</div><div class="v"><span data-draw="num" data-source="rec_outofsample_team" data-field="추천일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">추천 외 <span data-draw="num" data-source="rec_outofsample_team" data-field="추천외일평균" data-row="0" data-fmt=".2f">—</span>대</div></div>
+      <div class="kpi"><div class="k">20일 이상 활동 에이전트</div><div class="v"><span data-draw="num" data-source="summary_all" data-field="20일이상" data-row="0">—</span><span class="u">명</span></div><div class="s">판매의 <span data-draw="num" data-source="summary_all" data-field="20일이상판매비중" data-row="0" data-fmt=".0f">—</span>% · 전체 <span data-draw="num" data-source="summary_all" data-field="에이전트수" data-row="0">—</span>명</div></div>
+      <div class="kpi"><div class="k">상위 10% 점포 판매 비중</div><div class="v"><span data-draw="num" data-source="store_concentration" data-field="상위10퍼센트점포판매비중" data-row="0" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s">누적 <span data-draw="num" data-source="store_concentration" data-field="점포수" data-row="0">—</span>곳</div></div>
+      <div class="kpi"><div class="k">리필스틱 동반 구매, 11월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=11월" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s bad">8월 <span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=8월" data-fmt=".0f">—</span>%</div></div>
+    </div>
+    <div class="grid3">
+      <div class="card"><h3>월별 판매 (인력사별 누적)</h3>
+        <div class="legend" data-source="monthly"><span><i data-c="0"></i>토마스</span><span><i data-c="1"></i>비욘드</span><span><i data-c="2"></i>후킷</span></div>
+        <div class="chart" data-draw="vbar" data-source="monthly" data-x="월" data-y="토마스컴퍼니,비욘드,후킷"></div></div>
+      <div class="card"><h3>인력사별 팀·일당 판매 (대)</h3>
+        <div class="legend" data-source="monthly_agency"><span><i data-c="0"></i>토마스</span><span><i data-c="1"></i>비욘드</span><span><i data-c="2"></i>후킷</span></div>
+        <div class="chart" data-draw="line" data-source="monthly_agency" data-x="월" data-y="팀일당" data-series="인력사" data-order="토마스컴퍼니,비욘드,후킷" data-fmt=".2f"></div></div>
+      <div class="card"><h3>11월 일자별 판매 (대)</h3>
+        <div class="legend" data-source="daily"><span><i data-c="0"></i>토마스</span><span><i data-c="1"></i>비욘드</span><span><i data-c="2"></i>후킷</span></div>
+        <div class="chart" data-draw="vbar" data-source="daily" data-x="일자" data-y="토마스컴퍼니,비욘드,후킷" data-xfmt="date"></div></div>
+      <div class="card"><h3>11월 수퍼바이저별 팀·일당 (대)</h3>
+        <div class="chart" data-draw="hbar" data-source="sv" data-label="SV" data-label2="인력사" data-value="팀일평균" data-fmt=".1f"></div></div>
+      <div class="card"><h3>시간대별 판매, 11월 (대)</h3>
+        <div class="chart" data-draw="vbar" data-source="hourly" data-x="시간" data-y="판매" data-xsuffix="시"></div></div>
+      <div class="card"><h3>4~9월 상위·하위 점포의 10~11월 (대)</h3>
+        <div class="legend" data-source="store_persistence"><span><i data-c="0"></i>4~9월</span><span><i data-c="1"></i>10~11월</span></div>
+        <div class="chart" data-draw="vbar" data-source="store_persistence" data-x="구간" data-y="전기일평균,후기일평균" data-fmt=".1f" data-grouped="1"></div></div>
+    </div>
+    <div class="msgs">
+      <div data-read lang="ko"><b>총량은 제자리, 효율은 하락.</b> 월 판매는 팀 수를 늘려 유지했고 팀·일당은 4월 이후 꾸준히 내려왔습니다.</div>
+      <div data-read lang="ko"><b>사람이 가장 큰 변수.</b> 거쳐 간 1,045명 중 20일 이상 남은 67명이 판매 절반을 만들었습니다.</div>
+      <div data-read lang="ko"><b>추천 목록은 작은 이점.</b> 11월의 "3배"는 순환 효과였고 실제 이점은 하루 0.4~1대입니다. 입지 기반 807곳은 아직 미검증입니다.</div>
+      <div data-read lang="ko"><b>빈손 방문이 절반.</b> 방문 점포·일의 절반이 무판매이고 이동은 12%뿐입니다. 12시 무판매 시 이동 규칙이 필요합니다.</div>
+    </div>
+  </section>
+
+  <h2 id="long-volume">A. 월 판매는 제자리, 팀당 효율은 내리막</h2>
+  <p data-read lang="ko">월 판매는 4월 <b data-draw="num" data-source="monthly" data-field="판매" data-where="월=4월">—</b>대에서 10월 <b data-draw="num" data-source="monthly" data-field="판매" data-where="월=10월">—</b>대로 비슷한 범위를 오갔습니다. 그러나 팀 수를 늘려서 유지한 숫자입니다. 하루 판매는 4월 <b data-draw="num" data-source="monthly" data-field="일평균" data-where="월=4월" data-fmt=".0f">—</b>대에서 7월 <b data-draw="num" data-source="monthly" data-field="일평균" data-where="월=7월" data-fmt=".0f">—</b>대까지 떨어졌다가 11월 <b data-draw="num" data-source="monthly" data-field="일평균" data-where="월=11월" data-fmt=".0f">—</b>대로 회복 중이고, 팀·일당 판매는 비욘드와 후킷이 특히 많이 내려왔습니다. 8월에는 스타벅스 카드를 한 장도 주지 않았는데(건당 <b data-draw="num" data-source="monthly" data-field="스타벅스건당" data-where="월=8월" data-fmt=".2f">—</b>장) 하루 판매는 7월보다 오히려 높았습니다. 기프트카드가 판매를 만드는 핵심 요인은 아닐 수 있다는 뜻입니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>월별 판매 (대, 인력사별 누적)</h3>
+      <div class="legend" data-source="monthly"><span><i data-c="0"></i>토마스컴퍼니</span><span><i data-c="1"></i>비욘드</span><span><i data-c="2"></i>후킷</span></div>
+      <div class="chart" data-draw="vbar" data-source="monthly" data-x="월" data-y="토마스컴퍼니,비욘드,후킷" data-total="판매"></div>
+    </div>
+    <div class="card"><h3>인력사별 팀·일당 판매 (대)</h3>
+      <div class="legend" data-source="monthly_agency"><span><i data-c="0"></i>토마스컴퍼니</span><span><i data-c="1"></i>비욘드</span><span><i data-c="2"></i>후킷</span></div>
+      <div class="chart" data-draw="line" data-source="monthly_agency" data-x="월" data-y="팀일당" data-series="인력사" data-order="토마스컴퍼니,비욘드,후킷" data-fmt=".2f"></div>
+    </div>
+    <div class="card"><h3>하루 평균 판매와 스타벅스 카드 건당 제공 수</h3>
+      <div class="legend" data-source="monthly"><span><i data-c="0"></i>하루 평균 판매(대)</span><span><i data-c="1"></i>카드 건당(장) ×50</span></div>
+      <div class="chart" data-draw="line" data-source="monthly" data-x="월" data-y="일평균,스타벅스건당" data-scale="1,50" data-fmt=".0f,.2f"></div>
+      <p class="muted">카드 건당 수는 같은 눈금에 보이도록 50배로 그렸습니다. 값 표시는 원래 수치입니다.</p>
+    </div>
+    <div class="card"><h3>일자별 판매 (대, 136일)</h3>
+      <div class="chart" data-draw="line" data-source="daily_all" data-x="일자" data-y="판매" data-xfmt="date" data-dots="0"></div>
+    </div>
+  </div>
+
+  <h2 id="long-recommend">B. 추천 목록 검증: "3배"는 대부분 순환 효과, 진짜 이점은 작지만 있다</h2>
+  <p data-read lang="ko">추천 목록 1,497곳은 두 종류입니다. <b data-draw="num" data-source="rec_validation_summary" data-field="실적기반점포수" data-row="0">—</b>곳은 과거 판매 실적으로 뽑은 "실적 기반", <b data-draw="num" data-source="rec_validation_summary" data-field="입지기반점포수" data-row="0">—</b>곳은 오피스·언론사 근접 같은 조건으로 뽑은 "입지 기반"입니다. 입지 기반 점포는 지금까지 판매가 발생한 곳이 4곳뿐이라 아직 효과를 말할 수 없습니다. 추천 효과로 보였던 것은 전부 실적 기반 점포에서 나왔는데, 이 목록은 11월 11일 판매까지 반영해 만들어졌습니다. 11월에 잘 팔린 점포가 목록에 들어간 뒤 그 11월 성과를 재는 셈이라 순환 논리입니다.</p>
+  <p data-read lang="ko">그래서 세 가지로 다시 쟀습니다. 첫째, 같은 팀이 추천 점포에서 시작한 날과 아닌 날을 비교하면 <b data-draw="num" data-source="rec_within_summary" data-field="팀수" data-row="0">—</b>개 팀 중 <b data-draw="num" data-source="rec_within_summary" data-field="추천이높은팀" data-row="0">—</b>개 팀이 추천일에 더 팔았습니다(팀 평균 차이 <b data-draw="num" data-source="rec_within_summary" data-field="평균차이" data-row="0" data-fmt=".2f">—</b>대). 둘째, 11월 전에 이미 확정된 추천 점포만 보면 11월 팀·일 평균은 <b data-draw="num" data-source="rec_outofsample" data-field="팀일평균" data-where="그룹=10월까지 실적으로 확정된 추천" data-fmt=".2f">—</b>대 대 추천 외 <b data-draw="num" data-source="rec_outofsample" data-field="팀일평균" data-where="그룹=추천 외" data-fmt=".2f">—</b>대입니다. 그런데 이것을 같은 팀 안에서 비교하면 <b data-draw="num" data-source="rec_outofsample_team" data-field="추천일평균" data-row="0" data-fmt=".2f">—</b>대 대 <b data-draw="num" data-source="rec_outofsample_team" data-field="추천외일평균" data-row="0" data-fmt=".2f">—</b>대로 좁혀지고, <b data-draw="num" data-source="rec_outofsample_team" data-field="팀수" data-row="0">—</b>개 팀 중 추천일이 높은 팀은 <b data-draw="num" data-source="rec_outofsample_team" data-field="추천이높은팀" data-row="0">—</b>개뿐입니다. 셋째, 목록과 무관하게 4~9월 하루 판매 상위 25% 점포를 10~11월에 다시 보면 <b data-draw="num" data-source="store_persistence" data-field="전기일평균" data-where="구간=상위 25%" data-fmt=".2f">—</b>대에서 <b data-draw="num" data-source="store_persistence" data-field="후기일평균" data-where="구간=상위 25%" data-fmt=".2f">—</b>대로 내려오고, 하위 25%는 <b data-draw="num" data-source="store_persistence" data-field="전기일평균" data-where="구간=하위 25%" data-fmt=".2f">—</b>대에서 <b data-draw="num" data-source="store_persistence" data-field="후기일평균" data-where="구간=하위 25%" data-fmt=".2f">—</b>대로 올라옵니다. 과거에 잘 팔린 점포가 계속 잘 팔리는 힘은 있지만 약하고(상관 0.2), 평균으로 되돌아가는 힘이 더 큽니다.</p>
+  <p data-read lang="ko"><b>결론:</b> 추천 점포는 분명 더 낫지만 하루 0.4~1대 수준이지 3배가 아닙니다. 추천 목록보다 더 큰 차이는 "어떤 팀이 가느냐"와 "그날의 운"에서 납니다. 입지 기반 807곳은 거의 가보지 않았으니 일부 팀에 의도적으로 배정해 실제 성과를 확인하는 것이 목록의 가치를 높이는 가장 빠른 길입니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>11월 전 확정 추천 점포 기준, 11월 시작점포별 팀·일 평균 (대)</h3>
+      <div class="chart sm" data-draw="hbar" data-source="rec_outofsample" data-label="그룹" data-value="팀일평균" data-fmt=".2f" data-sub="팀일"></div>
+      <p class="muted">"11월 실적 반영 추천"은 11월 판매가 목록에 들어간 점포라 순환 효과가 섞여 있습니다. 괄호는 팀·일 수.</p>
+    </div>
+    <div class="card"><h3>4~9월 하루 판매 구간별, 10~11월 하루 판매 (대)</h3>
+      <div class="legend" data-source="store_persistence"><span><i data-c="0"></i>4~9월</span><span><i data-c="1"></i>10~11월</span></div>
+      <div class="chart" data-draw="vbar" data-source="store_persistence" data-x="구간" data-y="전기일평균,후기일평균" data-fmt=".1f" data-grouped="1"></div>
+      <p class="muted">4~9월 2일 이상 판매하고 10~11월에도 판매가 있는 354개 점포.</p>
+    </div>
+    <div class="card"><h3>월별 점포당 판매: 실적 기반 추천 · 입지 기반 추천 · 그 외 (대)</h3>
+      <div class="legend" data-source="rec_group_month"><span><i data-c="0"></i>실적 기반 추천</span><span><i data-c="1"></i>추천 외</span></div>
+      <div class="chart" data-draw="vbar" data-source="rec_group_month" data-x="월" data-y="점포당" data-series="그룹" data-order="실적 기반 추천,추천 외" data-fmt=".1f" data-grouped="1"></div>
+      <p class="muted">입지 기반 추천은 판매 발생 점포가 4곳뿐이라 그래프에서 뺐습니다. 실적 기반 점포의 높은 값은 선정 기준 자체가 판매 실적이라 당연한 결과입니다.</p>
+    </div>
+    <div class="card"><h3>9~10월 대 11월, 그룹별 점포·일 평균 (대)</h3>
+      <div class="legend" data-source="rec_group_period"><span><i data-c="0"></i>9~10월</span><span><i data-c="1"></i>11월</span></div>
+      <div class="chart" data-draw="vbar" data-source="rec_group_period" data-x="그룹" data-y="점포일평균" data-series="기간" data-order="9~10월,11월" data-fmt=".2f" data-grouped="1"></div>
+      <p class="muted">실적 기반 점포는 유지, 그 외 점포는 하락. 새로 개척하는 점포의 질이 낮아지고 있다는 신호입니다.</p>
+    </div>
+  </div>
+
+  <h2 id="long-store">C. 점포 발굴은 줄고, 판매는 소수 점포에 몰린다</h2>
+  <p data-read lang="ko">누적 <b data-draw="num" data-source="store_concentration" data-field="점포수" data-row="0">—</b>개 점포에서 팔았지만 절반(<b data-draw="num" data-source="store_concentration" data-field="한번만판매점포비중" data-row="0" data-fmt=".0f">—</b>%)은 단 하루만 판매가 있었고, 상위 10% 점포가 전체 판매의 <b data-draw="num" data-source="store_concentration" data-field="상위10퍼센트점포판매비중" data-row="0" data-fmt=".0f">—</b>%를 차지합니다. 처음 파는 점포의 판매 비중은 4월 <b data-draw="num" data-source="monthly" data-field="신규점포비중" data-where="월=4월" data-fmt=".0f">—</b>%에서 8월 <b data-draw="num" data-source="monthly" data-field="신규점포비중" data-where="월=8월" data-fmt=".0f">—</b>%까지 내려왔습니다. 전 기간으로 보면 같은 점포를 다시 가도 10회차까지는 하루 판매가 거의 같고, 11회차 이상에서만 올라갑니다. 11월 자료에서 보인 "재방문할수록 좋다"는 결과는 이렇게 오래 다닌 핵심 점포 효과로 읽는 것이 맞습니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>처음 판매하는 점포의 판매 비중 (%)</h3>
+      <div class="chart" data-draw="vbar" data-source="monthly" data-x="월" data-y="신규점포비중" data-fmt=".0f"></div>
+    </div>
+    <div class="card"><h3>같은 점포 방문 차수별 하루 평균 판매, 전 기간 (대)</h3>
+      <div class="chart" data-draw="hbar" data-source="visit_depth_all" data-label="구간" data-value="일평균" data-fmt=".2f" data-sub="점포일"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:var(--cds-gap-md)"><h3>누적 판매 상위 점포</h3>
+    <div class="tw"><table data-source="top_stores_all" data-row-key="점포코드"><thead><tr><th data-field="점포명">점포</th><th data-field="브랜드">브랜드</th><th data-field="구분">구분</th><th class="n" data-field="판매">판매</th><th class="n" data-field="판매일수">판매일</th><th class="n" data-field="일당">일당</th><th data-field="첫달">첫 판매</th><th class="n" data-field="팀수">팀수</th></tr></thead>
+    <tbody data-draw="tbl" data-cols="점포명,브랜드,구분,판매,판매일수,일당,첫달,팀수" data-fmts=",,,,,.1f,,"></tbody></table></div>
+  </div>
+
+  <h2 id="long-ops">D. 운영 리듬: 월요일이 가장 약하고, 방문 점포의 절반은 빈손</h2>
+  <p data-read lang="ko">요일별 하루 판매는 월요일 <b data-draw="num" data-source="weekday" data-field="일평균" data-where="요일=월" data-fmt=".0f">—</b>대, 금요일 <b data-draw="num" data-source="weekday" data-field="일평균" data-where="요일=금" data-fmt=".0f">—</b>대로 주 후반이 높습니다. 날짜별 방문 점포 목록(판매 0 포함)으로 보면 방문한 점포·일의 절반 이상이 무판매였고, 10월은 <b data-draw="num" data-source="storeday_month" data-field="무판매율" data-where="월=10월" data-fmt=".0f">—</b>%까지 올라갔습니다. 시간대 분포는 4월부터 거의 변하지 않았습니다. 11~12시에 40%가 팔리고 15시에 두 번째 봉우리가 옵니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>요일별 하루 평균 판매 (대)</h3>
+      <div class="chart" data-draw="vbar" data-source="weekday" data-x="요일" data-y="일평균" data-fmt=".0f" data-xsuffix="요일"></div>
+    </div>
+    <div class="card"><h3>방문 점포·일 중 무판매 비율 (%)</h3>
+      <div class="chart" data-draw="vbar" data-source="storeday_month" data-x="월" data-y="무판매율" data-fmt=".0f"></div>
+    </div>
+  </div>
+
+  <h2 id="long-mix">E. 무엇이 바뀌었나: 색상, 브랜드, 고객, 부가 지표</h2>
+  <p data-read lang="ko">4월에는 제트 블랙이 <b data-draw="num" data-source="color_month" data-field="비중" data-where="월=4월&amp;색상=제트 블랙" data-fmt=".0f">—</b>%로 압도적 1위였지만 5월부터 네이비 블루가 1위로 올라서 11월 <b data-draw="num" data-source="color_month" data-field="비중" data-where="월=11월&amp;색상=네이비 블루" data-fmt=".0f">—</b>%입니다. 브랜드는 GS25 비중이 4월 <b data-draw="num" data-source="brand_month" data-field="비중" data-where="월=4월&amp;브랜드=GS25" data-fmt=".0f">—</b>%에서 11월 <b data-draw="num" data-source="brand_month" data-field="비중" data-where="월=11월&amp;브랜드=GS25" data-fmt=".0f">—</b>%로 줄고 세븐일레븐·CU가 늘었습니다. 고객 정보를 받기 시작한 8월 이후 여성 비중은 <b data-draw="num" data-source="monthly" data-field="여성비중" data-where="월=8월" data-fmt=".0f">—</b>%에서 <b data-draw="num" data-source="monthly" data-field="여성비중" data-where="월=11월" data-fmt=".0f">—</b>%로 늘었고, 리필스틱 동반 구매율은 8월 <b data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=8월" data-fmt=".0f">—</b>%에서 11월 <b data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=11월" data-fmt=".0f">—</b>%로 크게 떨어졌습니다. 회원가입 완료율은 8월 <b data-draw="num" data-source="monthly" data-field="회원가입완료율" data-where="월=8월" data-fmt=".0f">—</b>%까지 떨어졌다가 11월 <b data-draw="num" data-source="monthly" data-field="회원가입완료율" data-where="월=11월" data-fmt=".0f">—</b>%로 회복됐습니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>색상별 판매 비중 (%)</h3>
+      <div class="legend" data-source="color_month"><span><i data-c="0"></i>네이비 블루</span><span><i data-c="1"></i>제트 블랙</span><span><i data-c="2"></i>로즈골드</span><span><i data-c="3"></i>루나 실버</span></div>
+      <div class="chart" data-draw="line" data-source="color_month" data-x="월" data-y="비중" data-series="색상" data-order="네이비 블루,제트 블랙,로즈골드,루나 실버" data-fmt=".0f"></div>
+    </div>
+    <div class="card"><h3>브랜드별 판매 비중 (%)</h3>
+      <div class="legend" data-source="brand_month"><span><i data-c="0"></i>CU</span><span><i data-c="1"></i>세븐일레븐</span><span><i data-c="2"></i>GS25</span><span><i data-c="3"></i>이마트24</span></div>
+      <div class="chart" data-draw="line" data-source="brand_month" data-x="월" data-y="비중" data-series="브랜드" data-order="CU,세븐일레븐,GS25,이마트24" data-fmt=".0f"></div>
+    </div>
+    <div class="card"><h3>부가 지표 (%)</h3>
+      <div class="legend" data-source="monthly"><span><i data-c="0"></i>회원가입 완료율</span><span><i data-c="1"></i>카카오 친구추가 완료율</span><span><i data-c="2"></i>리필스틱 동반 구매율</span><span><i data-c="3"></i>쿠폰 경로 비중</span></div>
+      <div class="chart" data-draw="line" data-source="monthly" data-x="월" data-y="회원가입완료율,카카오완료율,리필동반율,쿠폰경로비중" data-fmt=".0f"></div>
+      <p class="muted">리필스틱 항목은 8월부터 기록됐습니다.</p>
+    </div>
+    <div class="card"><h3>여성·20대 구매 비중 (%, 8월부터)</h3>
+      <div class="legend" data-source="monthly"><span><i data-c="0"></i>여성</span><span><i data-c="1"></i>20대</span></div>
+      <div class="chart" data-draw="line" data-source="monthly" data-x="월" data-y="여성비중,20대비중" data-fmt=".0f"></div>
+    </div>
+  </div>
+
+  <h2 id="long-people">F. 사람: 1,045명이 거쳐 갔고 67명이 절반을 팔았다</h2>
+  <p data-read lang="ko">전 기간 판매 기록에 이름이 오른 에이전트는 <b data-draw="num" data-source="summary_all" data-field="에이전트수" data-row="0">—</b>명이지만 20일 이상 활동한 사람은 <b data-draw="num" data-source="summary_all" data-field="20일이상" data-row="0">—</b>명뿐이고, 이들이 전체 판매의 <b data-draw="num" data-source="summary_all" data-field="20일이상판매비중" data-row="0" data-fmt=".0f">—</b>%를 팔았습니다. 오래 남은 사람의 하루 판매는 전체 평균의 두 배에 가깝습니다. 팀당 효율이 내려온 가장 그럴듯한 원인은 인력 교체입니다. 팀 번호 체계가 7월, 9월, 11월에 바뀐 것도 같은 맥락입니다.</p>
+  <div class="card"><h3>20일 이상 활동한 에이전트 중 하루 판매 상위</h3>
+    <div class="tw"><table data-source="agents_top" data-row-key="인력사,에이전트"><thead><tr><th data-field="인력사">인력사</th><th data-field="에이전트">에이전트</th><th class="n" data-field="판매">판매</th><th class="n" data-field="활동일수">활동일</th><th class="n" data-field="활동월수">활동 월수</th><th class="n" data-field="일당">하루 판매</th></tr></thead>
+    <tbody data-draw="tbl" data-cols="인력사,에이전트,판매,활동일수,활동월수,일당" data-fmts=",,,,,.2f"></tbody></table></div>
+  </div>
+
+  <h2 id="nov-intro" style="margin-top:var(--cds-gap-xl)">11월 상세 (11월 3일 ~ 17일, 활동 기록 포함)</h2>
+  <p class="lead" data-read lang="ko">11월 3일부터 17일까지 낮 운영 <b data-draw="num" data-source="summary" data-field="운영일수" data-row="0">—</b>일 동안 <b data-draw="num" data-source="summary" data-field="판매팀수" data-row="0">—</b>개 팀이 <b data-draw="num" data-source="summary" data-field="판매대수" data-row="0">—</b>대를 팔았습니다. 활동을 등록한 팀·일 <b data-draw="num" data-source="summary" data-field="활동팀일" data-row="0">—</b>건 가운데 <b data-draw="num" data-source="summary" data-field="무판매율" data-row="0" data-fmt=".1f">—</b>%는 판매가 한 대도 없었고, 추천 점포에서 시작한 팀은 그렇지 않은 팀보다 하루 평균 약 3배를 팔았습니다.</p>
+
+  <div class="tiles" id="tiles">
+    <div class="tile"><div class="k">총 판매 대수</div><div class="v"><span data-draw="num" data-source="summary" data-field="판매대수" data-row="0">—</span><span class="u">대</span></div></div>
+    <div class="tile"><div class="k">활동 팀·일당 평균</div><div class="v"><span data-draw="num" data-source="summary" data-field="팀일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div></div>
+    <div class="tile"><div class="k">무판매 팀·일 비율</div><div class="v"><span data-draw="num" data-source="summary" data-field="무판매율" data-row="0" data-fmt=".1f">—</span><span class="u">%</span></div></div>
+    <div class="tile"><div class="k">판매 발생 점포</div><div class="v"><span data-draw="num" data-source="summary" data-field="판매점포수" data-row="0">—</span><span class="u">곳</span></div></div>
+    <div class="tile"><div class="k">리필스틱 동반 구매</div><div class="v"><span data-draw="num" data-source="summary" data-field="리필스틱동반율" data-row="0" data-fmt=".1f">—</span><span class="u">%</span></div></div>
+    <div class="tile"><div class="k">스타벅스 카드 제공</div><div class="v"><span data-draw="num" data-source="summary" data-field="스타벅스" data-row="0">—</span><span class="u">장</span></div></div>
+  </div>
+
+  <h2 id="finding-recommend">1. 추천 점포에서 시작한 날이 압도적으로 좋다</h2>
+  <p data-read lang="ko">활동 시작 점포가 추천 목록(1,497곳)에 포함된 팀·일은 하루 평균 <b data-draw="num" data-source="recommend" data-field="팀일평균" data-where="구분=추천 점포에서 시작" data-fmt=".2f">—</b>대, 포함되지 않은 팀·일은 <b data-draw="num" data-source="recommend" data-field="팀일평균" data-where="구분=추천 외 점포에서 시작" data-fmt=".2f">—</b>대였습니다. 무판매 비율도 <b data-draw="num" data-source="recommend" data-field="무판매율" data-where="구분=추천 점포에서 시작" data-fmt=".0f">—</b>% 대 <b data-draw="num" data-source="recommend" data-field="무판매율" data-where="구분=추천 외 점포에서 시작" data-fmt=".0f">—</b>%로 차이가 큽니다. 세 인력사 모두에서 같은 방향입니다. 다만 이 숫자는 그대로 믿으면 안 됩니다. 추천 목록이 11월 11일까지의 판매로 만들어져 11월에 잘 팔린 점포가 목록에 들어간 효과가 섞여 있고, 잘하는 팀이 추천 점포를 더 고르는 경향도 있습니다. 위 B절에서 이를 걷어내고 다시 잰 결과, 실제 이점은 같은 팀 기준 하루 0.4~1대 수준입니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>시작 점포 유형별 하루 평균 판매 (대)</h3>
+      <div class="chart sm" data-draw="hbar" data-source="recommend" data-label="구분" data-value="팀일평균" data-fmt=".2f" data-sub="팀일"></div>
+      <p class="muted">막대 옆 괄호는 팀·일 수. 판매가 발생한 점포 <span data-draw="num" data-source="summary" data-field="판매점포수" data-row="0">—</span>곳 가운데 <span data-draw="num" data-source="summary" data-field="판매발생추천점포" data-row="0">—</span>곳이 추천 목록에 있습니다.</p>
+    </div>
+    <div class="card"><h3>인력사별 비교 (하루 평균, 대)</h3>
+      <div class="legend" data-source="recommend_agency"><span><i data-c="0"></i>추천 점포에서 시작</span><span><i data-c="1"></i>추천 외 점포에서 시작</span></div>
+      <div class="chart" data-draw="vbar" data-source="recommend_agency" data-x="인력사" data-y="팀일평균" data-series="구분" data-fmt=".2f" data-grouped="1"></div>
+    </div>
+  </div>
+
+  <h2 id="finding-agency">2. 인력사와 수퍼바이저에 따라 성과 편차가 매우 크다</h2>
+  <p data-read lang="ko">토마스컴퍼니는 활동 팀·일당 <b data-draw="num" data-source="agency" data-field="팀일평균" data-where="인력사=토마스컴퍼니" data-fmt=".2f">—</b>대, 비욘드 <b data-draw="num" data-source="agency" data-field="팀일평균" data-where="인력사=비욘드" data-fmt=".2f">—</b>대, 후킷 <b data-draw="num" data-source="agency" data-field="팀일평균" data-where="인력사=후킷" data-fmt=".2f">—</b>대입니다. 후킷은 활동을 등록한 날의 <b data-draw="num" data-source="agency" data-field="무판매율" data-where="인력사=후킷" data-fmt=".0f">—</b>%가 무판매였습니다. 수퍼바이저 단위로 보면 같은 인력사 안에서도 10배 넘게 갈립니다.</p>
+  <div class="card"><h3>인력사 요약</h3>
+    <div class="tw"><table data-source="agency" data-row-key="인력사"><thead><tr><th data-field="인력사">인력사</th><th class="n" data-field="판매">판매(대)</th><th class="n" data-field="팀수">판매 팀수</th><th class="n" data-field="활동팀일">활동 팀·일</th><th class="n" data-field="팀일평균">팀·일 평균</th><th class="n" data-field="무판매율">무판매율(%)</th><th class="n" data-field="평균활동시간">평균 활동(시간)</th></tr></thead>
+    <tbody data-draw="tbl" data-cols="인력사,판매,팀수,활동팀일,팀일평균,무판매율,평균활동시간" data-fmts=",,,,.2f,.1f,.1f"></tbody></table></div>
+  </div>
+  <div class="card" style="margin-top:var(--cds-gap-md)"><h3>수퍼바이저별 활동 팀·일당 평균 판매 (대)</h3>
+    <div class="chart" data-draw="hbar" data-source="sv" data-label="SV" data-label2="인력사" data-value="팀일평균" data-fmt=".2f" data-sub="무판매율" data-subfmt=".0f" data-subunit="% 무판매"></div>
+    <p class="muted">이다경(토마스 61팀)은 팀·일 3건뿐이라 참고만 하세요. 괄호는 무판매 팀·일 비율.</p>
+  </div>
+
+  <h2 id="finding-zero">3. 활동은 등록했지만 판매가 한 건도 없는 팀이 19개</h2>
+  <p data-read lang="ko">4일 이상 활동을 등록하고도 판매 제출이 0인 팀입니다. 후킷에 몰려 있고, 비욘드 73·77·81팀은 팀배정표에서 "스텝팀"으로 표시된 팀입니다. 실제로 판매가 없었는지, 아니면 판매를 앱이 아닌 다른 경로로 보고하는지 먼저 확인해야 합니다. 후킷의 무판매율이 높은 이유가 이 팀들 때문이라면 인력사 비교 자체가 달라집니다.</p>
+  <div class="card"><div class="tw"><table data-source="zero_teams" data-row-key="인력사,팀"><thead><tr><th data-field="인력사">인력사</th><th class="n" data-field="팀">팀</th><th class="n" data-field="활동일수">활동 등록 일수</th><th class="n" data-field="판매">판매</th></tr></thead>
+    <tbody data-draw="tbl" data-cols="인력사,팀,활동일수,판매" data-fmts=",,,"></tbody></table></div></div>
+
+  <h2 id="trend">4. 일자별 추이와 시간대</h2>
+  <p data-read lang="ko">하루 판매는 11월 12일(목)이 가장 많았고, 둘째 주 들어 첫 주보다 올라왔습니다. 11월 17일은 분석 시점 오후 2시 기준이라 하루치가 아닙니다. 시간대는 11~12시와 15시에 두 봉우리가 있고, 점심 직후 13~14시가 가장 낮습니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>일자별 판매 (대, 인력사별 누적)</h3>
+      <div class="legend" data-source="daily"><span><i data-c="0"></i>토마스컴퍼니</span><span><i data-c="1"></i>비욘드</span><span><i data-c="2"></i>후킷</span></div>
+      <div class="chart" data-draw="vbar" data-source="daily" data-x="일자" data-y="토마스컴퍼니,비욘드,후킷" data-xfmt="date" data-total="판매"></div>
+    </div>
+    <div class="card"><h3>시간대별 판매 (대)</h3>
+      <div class="chart" data-draw="vbar" data-source="hourly" data-x="시간" data-y="판매" data-xsuffix="시"></div>
+    </div>
+  </div>
+
+  <h2 id="store">5. 어떤 점포가 잘 팔리나</h2>
+  <p data-read lang="ko">흡연구역이 있는 점포가 전체 판매의 3분의 2를 차지합니다. 브랜드별 점포당 판매는 CU 흡연구역이 가장 높고 이마트24가 가장 낮습니다. 같은 점포를 다시 방문할수록 하루 판매가 올라가는 경향이 뚜렷해서, 한 번 팔린 점포를 버리지 않는 것이 중요합니다. 서울역·용산 일대가 지역 전체 판매의 핵심입니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>점포 구분 × 브랜드, 점포당 판매 (대)</h3>
+      <div class="chart" data-draw="hbar" data-source="store_type" data-label="브랜드" data-label2="구분" data-value="점포당판매" data-fmt=".2f" data-sub="점포수" data-subunit="곳"></div>
+    </div>
+    <div class="card"><h3>같은 점포 방문 차수별 하루 평균 판매 (대)</h3>
+      <div class="chart" data-draw="vbar" data-source="revisit" data-x="방문차수" data-y="일평균" data-fmt=".2f" data-xsuffix="회차" data-sub="점포일"></div>
+      <p class="muted">막대 위 괄호는 해당 차수의 점포·일 수. 5회차는 5건뿐입니다.</p>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:var(--cds-gap-md)">
+    <div class="card"><h3>판매 상위 점포</h3>
+      <div class="tw"><table data-source="top_stores" data-row-key="점포코드"><thead><tr><th data-field="점포명">점포</th><th data-field="브랜드">브랜드</th><th data-field="구분">구분</th><th class="n" data-field="판매">판매</th><th class="n" data-field="판매일수">판매일</th><th class="n" data-field="팀수">팀수</th><th data-field="추천점포">추천</th></tr></thead>
+      <tbody data-draw="tbl" data-cols="점포명,브랜드,구분,판매,판매일수,팀수,추천점포" data-fmts=",,,,,," data-key="점포코드"></tbody></table></div>
+    </div>
+    <div class="card"><h3>시군구별 판매 상위</h3>
+      <div class="tw"><table data-source="region" data-row-key="시도,시군구"><thead><tr><th data-field="시도">시도</th><th data-field="시군구">시군구</th><th class="n" data-field="판매">판매</th><th class="n" data-field="점포수">점포수</th><th class="n" data-field="점포당판매">점포당</th></tr></thead>
+      <tbody data-draw="tbl" data-cols="시도,시군구,판매,점포수,점포당판매" data-fmts=",,,,.2f"></tbody></table></div>
+    </div>
+  </div>
+
+  <h2 id="insight">6. 점포 인사이트 항목은 아직 판매를 가르지 못한다</h2>
+  <p data-read lang="ko">점포 인사이트에 기록된 흡연 스팟 유무, 유동량, 점주 태도별 점포당 판매를 비교하면 차이가 작습니다. "유동 많음"과 "유동 적음"의 점포당 판매가 거의 같다는 점이 특히 눈에 띕니다. 인사이트가 틀렸다기보다 현재 기록 방식(자유 입력, 항목 누락)이 분석에 쓰기엔 거칠다는 뜻이며, 선택형 항목으로 통일하면 쓸모가 커집니다.</p>
+  <div class="card"><div class="tw"><table data-source="insight" data-row-key="항목,값"><thead><tr><th data-field="항목">항목</th><th data-field="값">값</th><th class="n" data-field="점포수">점포수</th><th class="n" data-field="판매">판매</th><th class="n" data-field="점포당판매">점포당 판매</th></tr></thead>
+    <tbody data-draw="tbl" data-cols="항목,값,점포수,판매,점포당판매" data-fmts=",,,,.2f"></tbody></table></div></div>
+
+  <h2 id="ops">7. 이동과 활동 시간</h2>
+  <p data-read lang="ko">하루에 점포를 한 번이라도 옮긴 팀·일은 <b data-draw="num" data-source="ops" data-field="팀일평균" data-where="구간=1회 이동" data-fmt=".2f">—</b>대, 두 번 이상은 <b data-draw="num" data-source="ops" data-field="팀일평균" data-where="구간=2회 이상" data-fmt=".2f">—</b>대로, 머무른 팀·일(<b data-draw="num" data-source="ops" data-field="팀일평균" data-where="구간=이동 없음" data-fmt=".2f">—</b>대)보다 높습니다. 그런데 이동 자체가 전체 팀·일의 12%에 그칩니다. 안 팔리는 자리에서 버티는 날이 많다는 뜻입니다. 이동 사유의 절반 이상이 "유동인구 부족"입니다. 활동 시간은 7~8시간대가 가장 좋고, 그 이상은 오히려 낮습니다(표본 10건).</p>
+  <div class="grid2">
+    <div class="card"><h3>이동 횟수·활동 시간 구간별 하루 평균 판매 (대)</h3>
+      <div class="chart" data-draw="hbar" data-source="ops" data-label="구간" data-label2="항목" data-value="팀일평균" data-fmt=".2f" data-sub="팀일"></div>
+    </div>
+    <div class="card"><h3>점포 이동 사유 (건)</h3>
+      <div class="chart" data-draw="hbar" data-source="move_reason" data-label="사유" data-value="건수"></div>
+    </div>
+  </div>
+
+  <h2 id="customer">8. 누가 사는가</h2>
+  <p data-read lang="ko">구매자의 81%가 남성이고 30~50대가 중심입니다. 여성 구매자는 20~30대 비중이 높습니다. 색상은 네이비 블루가 1위이지만 로즈골드가 20~40대에서 강하고, 구매자의 60%는 연초 사용자입니다. 리필스틱 동반 구매는 4건 중 1건 수준이며 아틱과 앰버에 집중됩니다.</p>
+  <div class="grid2">
+    <div class="card"><h3>연령대 × 성별 판매 (대)</h3>
+      <div class="legend" data-source="customer"><span><i data-c="0"></i>남자</span><span><i data-c="1"></i>여자</span></div>
+      <div class="chart" data-draw="vbar" data-source="customer" data-x="연령대" data-y="판매" data-series="성별"></div>
+    </div>
+    <div class="card"><h3>디바이스 색상 (대)</h3>
+      <div class="chart sm" data-draw="hbar" data-source="color" data-label="색상" data-value="판매"></div>
+    </div>
+    <div class="card"><h3>구매자 기존 사용 제품 (대)</h3>
+      <div class="chart sm" data-draw="hbar" data-source="product" data-label="사용제품" data-value="판매"></div>
+    </div>
+    <div class="card"><h3>리필스틱 종류 (대)</h3>
+      <div class="chart" data-draw="hbar" data-source="stick" data-label="스틱" data-value="판매"></div>
+    </div>
+  </div>
+
+  <h2 id="actions">바꿀 수 있는 다섯 가지</h2>
+  <div class="actions">
+    <div class="card"><div class="num">1</div><h3>추천 목록은 쓰되, 입지 기반 807곳을 실험하기</h3><p data-read lang="ko">검증 결과 추천 점포의 실제 이점은 하루 0.4~1대입니다. 작지만 공짜이니 시작 점포 배정에는 계속 쓰세요. 더 중요한 건 한 번도 안 가 본 입지 기반 807곳입니다. 매일 5~10개 팀을 거기에 배정해 2주만 쌓으면 목록이 정말 쓸모 있는지 판가름 납니다.</p></div>
+    <div class="card"><div class="num">2</div><h3>무판매 2시간이면 이동</h3><p data-read lang="ko">이동한 팀·일이 더 많이 팔았는데 이동은 12%뿐이고, 방문 점포·일의 절반은 전 기간 내내 빈손이었습니다. 12시까지 판매 0이면 관리자가 이동을 제안하는 규칙을 두세요.</p></div>
+    <div class="card"><div class="num">3</div><h3>무판매 19개 팀부터 확인</h3><p data-read lang="ko">후킷 11개 팀과 비욘드 스텝팀이 정말 판매가 없는지, 보고 경로 문제인지 확인하세요. 이 팀들을 빼면 후킷의 팀·일 평균은 다른 인력사와 비슷해집니다.</p></div>
+    <div class="card"><div class="num">4</div><h3>오래 남는 에이전트를 만드는 데 투자</h3><p data-read lang="ko">20일 이상 활동한 67명이 판매의 절반을 만들었고 팀당 효율 하락은 인력 교체와 맞물려 있습니다. 인력사 계약에 유지율 지표를 넣고, 상위 에이전트의 방식(점포 선택·시간 배분)을 신규 교육 자료로 만드세요.</p></div>
+    <div class="card"><div class="num">5</div><h3>리필스틱과 월요일을 다시 보기</h3><p data-read lang="ko">리필스틱 동반 구매율이 67%에서 25%로 떨어졌고 월요일 판매는 금요일보다 11% 낮습니다. 스틱 재고·안내 방식 변화를 점검하고, 월요일은 검증된 핵심 점포 위주로 배정하세요.</p></div>
+  </div>
+
+  <details><summary>데이터 범위와 주의할 점</summary>
+    <ul>
+      <li>4~11월 장기 분석: "폼즈" 압축 파일의 인력사별 데일리 엑셀 136일분(4월 13일~11월 16일, 19,719건 20,041대). 같은 날짜 파일이 여럿이면 최종·수정·v1 순으로 하나만 썼습니다. 7월 통합본 파일은 일자 파일과 겹쳐 제외했습니다.</li>
+      <li>엑셀 열 이름이 월마다 달라 이름 안의 핵심 단어로 맞췄습니다. 성별·연령·사용 제품은 8월부터, 리필스틱은 8월부터 기록이 있습니다. 활동 기록(활동시작·이동)은 11월만 있어 장기 분석의 팀·일은 "판매가 1건이라도 있는 팀·일"입니다.</li>
+      <li>방문 점포 무판매율은 엑셀의 방문 점포 목록 시트(판매 0 포함, 4월 말부터)로 계산했습니다. 4월은 자료가 적어 뺐습니다.</li>
+      <li>점포 코드가 비어 "흡연구역"으로만 적힌 판매 483대는 점포 분석에서 제외했습니다.</li>
+      <li>추천 목록은 지도 앱의 추천 포인트 파일 기준이며 실적 기반 690곳(마지막 판매일 4월~11월 11일)과 입지 기반 807곳으로 나뉩니다. B절의 "11월 전 확정" 구분은 실적 기반 점포의 마지막 판매일이 10월 31일 이전인지로 나눴습니다.</li>
+      <li>판매: 통합본 시트 "11월 세일즈 제출" 1,748건(색상별로 나뉜 행 포함, 수량 합 1,801대). 야간팀 판매는 별도 야간 파일에 있어 포함하지 않았습니다.</li>
+      <li>활동: 개편본 시트 "활동이동로그" 2,550건. 활동시작 기록이 있는 팀·일만 "활동 팀·일"로 셌습니다. 활동종료 기록이 없는 팀·일(약 3분의 1)은 활동 시간 계산에서 빠집니다.</li>
+      <li>인력사·수퍼바이저: 팀배정 시트 기준. 비욘드 82번 이후 팀은 배정표에 없어 팀 번호 범위로 비욘드에 넣었습니다.</li>
+      <li>추천 점포: 지도 앱의 추천 포인트 1,497곳. 판매가 발생한 423개 점포 중 203곳이 추천 목록에 있습니다.</li>
+      <li>점포 인사이트: 판매 점포의 83%에 기록이 있습니다. 값은 자유 입력이라 비슷한 뜻의 항목이 여러 이름으로 나뉘어 있습니다.</li>
+      <li>모든 수치는 11월 17일 오후 2시에 시트에서 내려받은 복사본입니다. 시트가 바뀌어도 이 화면은 자동으로 바뀌지 않습니다.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+const dash = (() => {
+  const DATA = {}, draws = {}, after = [];
+  return {
+    colors: ['#2f6fdb', '#e8893c', '#2a9d8f', '#8e5bd8', '#c74b50', '#7f8c8d'],
+    data: id => (id in DATA) ? { status: 'ok', data: DATA[id] } : { status: 'missing' },
+    draw: (k, fn) => { draws[k] = fn; },
+    onData: fn => after.push(fn),
+    async load() {
+      const ids = new Set([...document.querySelectorAll('[data-source]')].map(e => e.dataset.source));
+      const v = Date.now();
+      await Promise.all([...ids].map(async id => {
+        try { const r = await fetch('data/' + id + '.json?v=' + v); if (!r.ok) throw new Error(r.status); const j = await r.json(); DATA[id] = j.rows || j; }
+        catch (e) { console.warn('데이터 없음', id, e); }
+      }));
+      try { const u = await (await fetch('data/updated.json?v=' + v)).json(); document.getElementById('updated').textContent = u.updated + ' (' + u.range + ')'; } catch (e) {}
+      this.render();
+    },
+    render() {
+      for (const [k, fn] of Object.entries(draws)) document.querySelectorAll('[data-draw="' + k + '"]').forEach(el => { try { fn(el); } catch (e) { console.error(k, e); } });
+      after.forEach(f => f());
+    }
+  };
+})();
+
+(function(){
+  const fmtOf = (f) => (v) => (v == null || v === '' || isNaN(+v)) ? '—' : d3.format(f || ',')(+v);
+  const rowsOf = (id) => { const r = dash.data(id); return r.status === 'ok' && Array.isArray(r.data) ? r.data : null; };
+  const color = (i) => dash.colors[i % dash.colors.length];
+  const prefersMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+  // 문장·타일 속 숫자
+  dash.draw('num', (el) => {
+    const rows = rowsOf(el.dataset.source);
+    if (!rows) { el.textContent = '—'; return; }
+    let row = null;
+    if (el.dataset.row != null) row = rows[+el.dataset.row];
+    else if (el.dataset.where) { const conds = el.dataset.where.split('&').map(p => p.split('=')); row = rows.find(r => conds.every(([k, v]) => String(r[k]) === v)); }
+    el.textContent = row ? fmtOf(el.dataset.fmt)(row[el.dataset.field]) : '—';
+  });
+
+  // 표 본문
+  dash.draw('tbl', (tb) => {
+    const table = tb.closest('table'); const src = table && table.dataset.source;
+    const rows = rowsOf(src); tb.replaceChildren();
+    if (!rows) return;
+    const cols = tb.dataset.cols.split(','); const fmts = (tb.dataset.fmts || '').split(',');
+    const keyCols = (table.dataset.rowKey || '').split(',');
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = keyCols.map(k => encodeURIComponent(String(r[k] ?? ''))).join(',');
+      cols.forEach((c, i) => {
+        const td = document.createElement('td'); const v = r[c];
+        if (typeof v === 'number') { td.className = 'n'; td.textContent = fmtOf(fmts[i] || ',')(v); }
+        else { td.textContent = v == null ? '' : String(v); }
+        if (c === '추천점포') { td.innerHTML = ''; const s = document.createElement('span'); s.className = 'pill ' + (v === '예' ? 'ok' : ''); s.textContent = v; td.appendChild(s); }
+        if (c === '판매' && v === 0) { td.innerHTML = ''; const s = document.createElement('span'); s.className = 'pill bad'; s.textContent = '0'; td.appendChild(s); }
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  });
+
+  function tipIn(el) {
+    let t = el.querySelector('.tip'); if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; el.appendChild(t); } return t;
+  }
+  function showTip(el, t, ev, html) {
+    t.replaceChildren(...html); t.hidden = false;
+    const b = el.getBoundingClientRect(); let x = ev.clientX - b.left + 12, y = ev.clientY - b.top - 10;
+    if (x + t.offsetWidth > b.width) x = ev.clientX - b.left - t.offsetWidth - 12;
+    t.style.left = x + 'px'; t.style.top = Math.max(0, y) + 'px';
+  }
+  const line = (label, val, cls) => { const d = document.createElement('div'); if (cls) d.className = cls; d.textContent = label + (val != null ? ' ' + val : ''); return d; };
+
+  // 가로 막대
+  dash.draw('hbar', (el) => {
+    const rows = rowsOf(el.dataset.source);
+    el.querySelectorAll('svg').forEach(s => s.remove());
+    const t = tipIn(el); t.hidden = true;
+    if (!rows || !rows.length) { el.dataset.empty = '1'; return; }
+    const L = el.dataset.label, L2 = el.dataset.label2, V = el.dataset.value, S = el.dataset.sub;
+    const f = fmtOf(el.dataset.fmt), fs = fmtOf(el.dataset.subfmt || ','), unit = el.dataset.subunit || '';
+    const W = el.clientWidth || 320, rh = 24, mT = 4, mB = 4, H = rows.length * rh + mT + mB;
+    const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${V} 가로 막대, ${rows.length}개 항목`);
+    const lab = svg.append('g');
+    const labels = rows.map(r => L2 ? `${r[L2]} · ${r[L]}` : String(r[L]));
+    const tx = lab.selectAll('text').data(labels).join('text').attr('x', 0).attr('y', (d, i) => mT + i * rh + rh / 2 + 4).text(d => d);
+    let lw = 0; tx.each(function () { lw = Math.max(lw, this.getComputedTextLength()); });
+    const vals = rows.map(r => `${f(r[V])}${S ? ` (${fs(r[S])}${unit})` : ''}`);
+    const vt = svg.append('g').selectAll('text').data(vals).join('text').attr('class', 'val').text(d => d);
+    let vw = 0; vt.each(function () { vw = Math.max(vw, this.getComputedTextLength()); });
+    const x0 = Math.min(lw + 10, W * 0.45), x1 = W - vw - 8;
+    const x = d3.scaleLinear().domain([0, d3.max(rows, r => +r[V] || 0) || 1]).range([0, Math.max(10, x1 - x0)]);
+    lab.selectAll('text').attr('x', x0 - 10).attr('text-anchor', 'end');
+    const bars = svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', x0).attr('y', (d, i) => mT + i * rh + 5).attr('height', rh - 10).attr('rx', 3)
+      .style('fill', color(0)).attr('width', prefersMotion && !el.dataset.drawn ? 0 : d => x(+d[V] || 0));
+    if (prefersMotion && !el.dataset.drawn) bars.transition().duration(500).attr('width', d => x(+d[V] || 0));
+    el.dataset.drawn = '1';
+    vt.attr('x', d => 0).attr('y', (d, i) => mT + i * rh + rh / 2 + 4).attr('x', (d, i) => x0 + x(+rows[i][V] || 0) + 6);
+    svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', 0).attr('y', (d, i) => mT + i * rh).attr('width', W).attr('height', rh).attr('fill', 'transparent')
+      .on('mousemove', (ev, d) => { const i = rows.indexOf(d); showTip(el, t, ev, [line(labels[i]), line(V, f(d[V]), 's'), S ? line(S, fs(d[S]) + unit, 's') : line('')]); })
+      .on('mouseleave', () => { t.hidden = true; });
+  });
+
+  // 세로 막대 (단일·누적·묶음)
+  dash.draw('vbar', (el) => {
+    const rows = rowsOf(el.dataset.source);
+    el.querySelectorAll('svg').forEach(s => s.remove());
+    const t = tipIn(el); t.hidden = true;
+    if (!rows || !rows.length) return;
+    const X = el.dataset.x, f = fmtOf(el.dataset.fmt), grouped = el.dataset.grouped === '1';
+    let series, data;
+    if (el.dataset.series) {
+      const S = el.dataset.series, Y = el.dataset.y;
+      series = el.dataset.order ? el.dataset.order.split(',') : [...new Set(rows.map(r => r[S]))];
+      const xs = [...new Set(rows.map(r => r[X]))];
+      data = xs.map(xv => { const o = { [X]: xv }; series.forEach(s => { const m = rows.find(r => r[X] === xv && r[S] === s); o[s] = m ? +m[Y] : 0; }); return o; });
+    } else { series = el.dataset.y.split(','); data = rows.map(r => { const o = { [X]: r[X] }; series.forEach(s => o[s] = +r[s] || 0); if (el.dataset.sub) o.__sub = r[el.dataset.sub]; return o; }); }
+    const xl = (v) => el.dataset.xfmt === 'date' ? d3.utcFormat('%-m/%-d')(new Date(v)) : String(v) + (el.dataset.xsuffix || '');
+    const W = el.clientWidth || 320, H = 220, mL = 34, mR = 6, mT = 18, mB = 24;
+    const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${X}별 ${series.join(', ')} 세로 막대`);
+    const x = d3.scaleBand().domain(data.map(d => d[X])).range([mL, W - mR]).padding(0.25);
+    const tot = d => grouped ? d3.max(series, s => d[s]) : d3.sum(series, s => d[s]);
+    const y = d3.scaleLinear().domain([0, d3.max(data, tot) || 1]).nice().range([H - mB, mT]);
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(4)).join('line').attr('x1', mL).attr('x2', W - mR).attr('y1', y).attr('y2', y);
+    svg.append('g').selectAll('text').data(y.ticks(4)).join('text').attr('x', mL - 6).attr('y', d => y(d) + 4).attr('text-anchor', 'end').text(d => d3.format(',')(d));
+    const n = data.length, every = Math.max(1, Math.ceil(n / Math.floor((W - mL) / 42)));
+    svg.append('g').selectAll('text').data(data).join('text').attr('x', d => x(d[X]) + x.bandwidth() / 2).attr('y', H - mB + 14).attr('text-anchor', 'middle').text((d, i) => i % every === 0 ? xl(d[X]) : '');
+    const g = svg.append('g');
+    data.forEach(d => {
+      let acc = 0; const bw = grouped ? x.bandwidth() / series.length : x.bandwidth();
+      series.forEach((s, si) => {
+        const v = d[s]; const y0 = grouped ? y(0) : y(acc), y1 = grouped ? y(v) : y(acc + v);
+        const h = Math.max(0, y0 - y1 - (grouped || si === series.length - 1 ? 0 : 2));
+        g.append('rect').attr('x', x(d[X]) + (grouped ? si * bw : 0)).attr('y', y1).attr('width', grouped ? bw - 2 : bw).attr('height', h).attr('rx', 2).style('fill', color(si))
+          .on('mousemove', (ev) => showTip(el, t, ev, [line(xl(d[X])), line(series.length > 1 ? s : el.dataset.y, f(v), 's'), ...(series.length > 1 && !grouped ? [line('합계', f(tot(d)), 's')] : [])]))
+          .on('mouseleave', () => { t.hidden = true; });
+        if (!grouped) acc += v;
+      });
+      if (grouped) series.forEach((s, si) => g.append('text').attr('class', 'val').attr('x', x(d[X]) + si * bw + (bw - 2) / 2).attr('y', y(d[s]) - 4).attr('text-anchor', 'middle').text(f(d[s])));
+      else g.append('text').attr('class', 'val').attr('x', x(d[X]) + x.bandwidth() / 2).attr('y', y(tot(d)) - 4).attr('text-anchor', 'middle').text(n > 12 ? '' : f(tot(d)) + (d.__sub != null ? ` (${d.__sub})` : ''));
+    });
+  });
+
+  // 선 그래프 (여러 계열, 와이드 열 또는 롱 데이터)
+  dash.draw('line', (el) => {
+    const rows = rowsOf(el.dataset.source);
+    el.querySelectorAll('svg').forEach(s => s.remove());
+    const t = tipIn(el); t.hidden = true;
+    if (!rows || !rows.length) return;
+    const X = el.dataset.x, fmts = (el.dataset.fmt || ',').split(','), scales = (el.dataset.scale || '').split(',').map(v => +v || 1);
+    let series, data;
+    const xs = [...new Set(rows.map(r => r[X]))];
+    if (el.dataset.series) {
+      const S = el.dataset.series, Y = el.dataset.y;
+      series = el.dataset.order ? el.dataset.order.split(',') : [...new Set(rows.map(r => r[S]))];
+      data = xs.map(xv => { const o = { [X]: xv }; series.forEach(s => { const m = rows.find(r => r[X] === xv && r[S] === s); o[s] = m ? +m[Y] : null; }); return o; });
+    } else { series = el.dataset.y.split(','); data = rows.map(r => { const o = { [X]: r[X] }; series.forEach(s => o[s] = r[s] == null || r[s] === '' ? null : +r[s]); return o; }); }
+    const f = (si, v) => fmtOf(fmts[si] || fmts[0])(v);
+    const sc = (si) => scales[si] || 1;
+    const xl = (v) => el.dataset.xfmt === 'date' ? d3.utcFormat('%-m/%-d')(new Date(v)) : String(v);
+    const dots = el.dataset.dots !== '0';
+    const W = el.clientWidth || 320, H = 224, mL = 36, mR = 44, mT = 14, mB = 28;
+    const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${X}별 ${series.join(', ')} 선 그래프`);
+    const x = d3.scalePoint().domain(data.map(d => d[X])).range([mL + 14, W - mR]);
+    const ymax = d3.max(data, d => d3.max(series, (s, si) => d[s] == null ? 0 : d[s] * sc(si))) || 1;
+    const y = d3.scaleLinear().domain([0, ymax]).nice().range([H - mB, mT]);
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(4)).join('line').attr('x1', mL).attr('x2', W - mR).attr('y1', y).attr('y2', y);
+    svg.append('g').selectAll('text').data(y.ticks(4).filter(d => d > 0)).join('text').attr('x', mL - 6).attr('y', d => y(d) + 4).attr('text-anchor', 'end').text(d => d3.format(',')(d));
+    const n = data.length, every = Math.max(1, Math.ceil(n / Math.floor((W - mL - mR) / 48)));
+    svg.append('g').selectAll('text').data(data).join('text').attr('x', d => x(d[X])).attr('y', H - mB + 18).attr('text-anchor', 'middle').text((d, i) => i % every === 0 ? xl(d[X]) : '');
+    const ends = [];
+    series.forEach((s, si) => {
+      const pts = data.filter(d => d[s] != null);
+      svg.append('path').datum(pts).attr('fill', 'none').attr('stroke-width', 2).style('stroke', color(si))
+        .attr('d', d3.line().x(d => x(d[X])).y(d => y(d[s] * sc(si))));
+      if (dots) svg.append('g').selectAll('circle').data(pts).join('circle').attr('cx', d => x(d[X])).attr('cy', d => y(d[s] * sc(si))).attr('r', 3.5).style('fill', color(si)).style('stroke', 'var(--color-panel)').attr('stroke-width', 1.5);
+      const last = pts[pts.length - 1];
+      if (last) ends.push({ x: x(last[X]) + 6, y: y(last[s] * sc(si)), label: f(si, last[s]) });
+    });
+    // 끝 값 표시가 겹치지 않게 최소 13px 간격으로 벌림
+    ends.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 13) ends[i].y = ends[i - 1].y + 13;
+    for (let i = ends.length - 2; i >= 0; i--) if (ends[i + 1].y - ends[i].y < 13) ends[i].y = ends[i + 1].y - 13;
+    svg.append('g').selectAll('text').data(ends).join('text').attr('class', 'val').attr('x', d => d.x).attr('y', d => d.y + 4).text(d => d.label);
+    const guide = svg.append('line').attr('y1', mT).attr('y2', H - mB).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '3 3').style('opacity', 0);
+    svg.append('rect').attr('x', mL).attr('y', mT).attr('width', W - mL - mR).attr('height', H - mB - mT).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [mx] = d3.pointer(ev); let bi = 0, bd = Infinity;
+        data.forEach((d, i) => { const dd = Math.abs(x(d[X]) - mx); if (dd < bd) { bd = dd; bi = i; } });
+        const d = data[bi]; guide.attr('x1', x(d[X])).attr('x2', x(d[X])).style('opacity', 1);
+        showTip(el, t, ev, [line(xl(d[X])), ...series.map((s, si) => line(s, d[s] == null ? '—' : f(si, d[s]), 's'))]);
+      })
+      .on('mouseleave', () => { t.hidden = true; guide.style('opacity', 0); });
+  });
+
+  // 범례 색
+  dash.onData(() => { document.querySelectorAll('.pl .legend i[data-c]').forEach(i => { i.style.background = color(+i.dataset.c); }); });
+})();
+
+dash.load();
+let _rt; addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(() => dash.render(), 150); });
+</script>
+</body>
+</html>
