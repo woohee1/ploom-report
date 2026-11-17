@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """추천 목록 효과 검증: 실적 기반(R) / 입지 기반(N) / 비추천 으로 나눠 비교
 입력: long_sales_enriched.csv(4~11월 폼즈), sales_merged.csv·activity_clean.csv(11월 시트), recommend_points.json
 """
 import os as _os
 ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-P = _os.environ.get("PLOOM_PROJECT", r"C:\Users\VRID\Downloads\Ploom_v12_10_FAST_MISSING_SYNC")
+P = _os.environ.get("PLOOM_PROJECT", _os.path.join(ROOT, "ref"))
 import pandas as pd, json, os, numpy as np
 pd.set_option("display.width", 220); pd.set_option("display.max_columns", 30)
 D = _os.path.join(ROOT, "work", "data", "out")

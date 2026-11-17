@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import os as _os
 ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-P = _os.environ.get("PLOOM_PROJECT", r"C:\Users\VRID\Downloads\Ploom_v12_10_FAST_MISSING_SYNC")
+P = _os.environ.get("PLOOM_PROJECT", _os.path.join(ROOT, "ref"))
 import pandas as pd, json, os
 pd.set_option("display.width", 230); pd.set_option("display.max_columns", 40); pd.set_option("display.max_rows", 300)
 D = _os.path.join(ROOT, "work", "data", "out")

@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """분석용 표(sales_merged.csv, team_day.csv, activity_clean.csv) → 대시보드용 집계 JSON
 입력: 통합본 시트 '11월 세일즈 제출', 개편본 '활동이동로그', 팀배정, stores.json, store_insights.json, recommend_points.json
 """
 import os as _os
 ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-P = _os.environ.get("PLOOM_PROJECT", r"C:\Users\VRID\Downloads\Ploom_v12_10_FAST_MISSING_SYNC")
+P = _os.environ.get("PLOOM_PROJECT", _os.path.join(ROOT, "ref"))
 import pandas as pd, json, os, sys
 D = _os.path.join(ROOT, "work", "data", "out")
 E = os.path.join(D, "dash"); os.makedirs(E, exist_ok=True)

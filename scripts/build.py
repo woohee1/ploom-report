@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """시트 원본(JSON) + 점포 마스터/인사이트/추천 → 분석용 표 생성"""
 import os as _os
 ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-P = _os.environ.get("PLOOM_PROJECT", r"C:\Users\VRID\Downloads\Ploom_v12_10_FAST_MISSING_SYNC")
+P = _os.environ.get("PLOOM_PROJECT", _os.path.join(ROOT, "ref"))
 import json, sys, glob, os, re
 import pandas as pd
 

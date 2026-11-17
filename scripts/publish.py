@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """집계 결과(work/data/out/dash*, *.json)를 공개 페이지용 docs/data/ 로 옮긴다 (rows만, 코드·설명 제외).
 사용: py -3 scripts/publish.py "2026-11-18 08:00" "2026-04-13 ~ 2026-11-18"
 """

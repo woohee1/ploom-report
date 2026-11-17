@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """4~11월 인력사별 데일리 폼즈 엑셀 → 하나의 판매 표(long_sales.csv) + 방문점포 표(long_storeday.csv)"""
 import os as _os
 ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-P = _os.environ.get("PLOOM_PROJECT", r"C:\Users\VRID\Downloads\Ploom_v12_10_FAST_MISSING_SYNC")
+P = _os.environ.get("PLOOM_PROJECT", _os.path.join(ROOT, "ref"))
 import pandas as pd, glob, os, re, sys, warnings
 warnings.filterwarnings("ignore")
 B = _os.path.join(ROOT, "work", "forms_zip", "폼즈")

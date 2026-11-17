@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """4~11월 폼즈 통합표(long_sales_enriched.csv, long_storeday.csv) → 대시보드 장기 추이용 집계 JSON
 입력: '폼즈 (3).zip'의 인력사별 데일리 폼즈 엑셀 136일분(parse_forms.py로 합침), stores.json, recommend_points.json
 """
 import os as _os
 ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-P = _os.environ.get("PLOOM_PROJECT", r"C:\Users\VRID\Downloads\Ploom_v12_10_FAST_MISSING_SYNC")
+P = _os.environ.get("PLOOM_PROJECT", _os.path.join(ROOT, "ref"))
 import pandas as pd, json, os
 D = _os.path.join(ROOT, "work", "data", "out")
 E = os.path.join(D, "dash2"); os.makedirs(E, exist_ok=True)
