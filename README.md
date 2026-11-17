@@ -10,7 +10,7 @@
 
 ## 갱신 순서
 
-1. 구글 시트를 `work/data/sales.json`, `activity.json`, `team_map.json` 등으로 내려받습니다.
+1. 구글 시트를 `work/data/sales.json`, `activity.json`, `team_map.json` 등으로 내려받습니다. 앱스 스크립트 웹 앱(`scripts/sheet_api.gs`)이 설치되어 있으면 `py -3 scripts/fetch_sheets.py`로 자동 내려받기가 됩니다(환경 변수 PLOOM_SHEET_URL, PLOOM_SHEET_KEY 필요). 매일 아침 8시 클라우드 예약 작업이 같은 절차(`scripts/REFRESH.md`)를 돌립니다.
 2. 집계를 돌립니다.
    ```
    py -3 scripts/build.py        # 11월 시트 → 중간 CSV
