@@ -111,7 +111,7 @@ function todayView(date) {
     if (!o.에이전트 && r[5]) o.에이전트 = r[5];
     if (kind === '활동시작' && (!o.활동시작 || time < o.활동시작)) o.활동시작 = time;
     if (kind === '활동종료') o.활동종료 = time;
-    if (kind === '이동') o.이동++;
+    if (kind.indexOf('이동') >= 0 && kind !== '활동시작') o.이동++;
     if (time >= o._last) { o._last = time; o.마지막기록 = time + ' ' + kind; if (r[11]) o.현재점포 = r[11]; }
   });
   const svRows = vb.rows.filter(r => kdate(r[0]) === date).map(r => ({ 인력사: r[1], 팀: r[2], SV: r[3], 시간: hhmm(r[4]), 개입구분: r[12], 개입전: r[6], 개입후: r[7], 효과: r[10] }));
