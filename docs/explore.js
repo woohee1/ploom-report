@@ -1,7 +1,7 @@
 // ===== 탐색 엔진: 건 단위 자료 + 공통 필터 + 팀·점포 상세 =====
 (() => {
   const $ = id => document.getElementById(id);
-  const X = { rows: [], td: [], act: [], ready: false, orig: {}, computed: new Set(), firstMonth: {} };
+  const X = { rows: [], td: [], act: [], ready: false, orig: {}, computed: new Set(), firstMonth: {}, extra: [] };
   window.X = X;
   const AG = ['토마스컴퍼니', '비욘드', '후킷'];
   const WD = ['월', '화', '수', '목', '금', '토', '일'];
@@ -34,6 +34,7 @@
 
   // ---------- 필터 ----------
   const F = { from: '', to: '', agency: '', sv: '', team: '', brand: '', kind: '', wd: '' };
+  X.F = F; X.active = () => active(); X.filtered = () => filtered(); X.wday = wday; X.mon = mon;
   const active = () => Object.values(F).some(v => v);
   const dateOnly = () => !!(F.from || F.to);
   function match(r) {
@@ -97,7 +98,8 @@
     // 시트 달(11월 상세·한눈에 보기 11월 항목)
     const q = sum(Rn, r => r.수량), ts = tdStats(TDn, Rn);
     const rf = Rn.filter(r => r.리필구매 != null);
-    out.summary = [{ 판매대수: q, 제출건수: Rn.length, 운영일수: uniq(Rn, r => r.일자), 판매팀수: uniq(Rn, r => r.팀), 활동팀일: ts.활동팀일, 미판매팀일: ts.미판매팀일, 미판매율: ts.미판매율, 팀일평균: ts.팀일평균, 판매점포수: uniq(Rn.filter(r => r.점포코드), r => r.점포코드), 스타벅스: sum(Rn, r => r.스타벅스), 리필스틱동반율: rf.length ? r2(rf.filter(r => r.리필구매 === 1).length / rf.length * 100) : null }];
+    const dn = Rn.map(r => r.일자).sort();
+    out.summary = [{ 기간시작: dn[0] || '', 기간끝: dn[dn.length - 1] || '', 판매대수: q, 제출건수: Rn.length, 운영일수: uniq(Rn, r => r.일자), 판매팀수: uniq(Rn, r => r.팀), 활동팀일: ts.활동팀일, 미판매팀일: ts.미판매팀일, 미판매율: ts.미판매율, 팀일평균: ts.팀일평균, 판매점포수: uniq(Rn.filter(r => r.점포코드), r => r.점포코드), 스타벅스: sum(Rn, r => r.스타벅스), 리필스틱동반율: rf.length ? r2(rf.filter(r => r.리필구매 === 1).length / rf.length * 100) : null }];
     out.daily = [...group(Rn, r => r.일자)].sort((a, b) => a[0] < b[0] ? -1 : 1).map(([d, g]) => { const td = TDn.filter(r => r.일자 === d); const o = { 일자: d, 요일: g[0].요일, 판매: sum(g, r => r.수량), 건수: g.length, 판매팀수: uniq(g, r => r.팀), 활동팀일: td.length || uniq(g, r => r.팀) }; AG.forEach(a => o[a] = sum(g.filter(r => r.인력사 === a), r => r.수량)); o.팀일평균 = r2(o.판매 / Math.max(1, o.활동팀일)); return o; });
     out.agency = AG.map(a => { const g = Rn.filter(r => r.인력사 === a), td = TDn.filter(r => r.인력사 === a); if (!g.length && !td.length) return null; const s = tdStats(td, g); return Object.assign({ 인력사: a, 판매: td.length ? sum(td, r => r.판매) : sum(g, r => r.수량), 팀수: uniq(g, r => r.팀) }, s); }).filter(Boolean).sort((a, b) => b.판매 - a.판매);
     if (TDn.length) out.sv = [...group(TDn.filter(r => r.SV), r => r.인력사 + '|' + r.SV)].map(([k, td]) => { const s = tdStats(td, []); return Object.assign({ 인력사: td[0].인력사, SV: td[0].SV, 판매: sum(td, r => r.판매), 팀수: uniq(td, r => r.팀) }, s); }).sort((a, b) => b.팀일평균 - a.팀일평균);
@@ -124,6 +126,7 @@
     const ids = Object.keys(X.orig);
     if (!active()) { ids.forEach(id => dash.set(id, X.orig[id])); X.computed = new Set(); }
     else { const out = compute(); X.computed = new Set(Object.keys(out)); Object.entries(out).forEach(([id, rows]) => dash.set(id, rows)); ids.forEach(id => { if (!(id in out)) dash.set(id, X.orig[id]); }); }
+    const fr = filtered(); X.extra.forEach(fn => { try { fn(fr); } catch (e) { console.error('추가 집계', e); } });
     markStatic(); renderChips(); dash.render();
     if (detail) showDetail(location.hash);
   }
@@ -317,5 +320,5 @@
   removeEventListener('hashchange', origShow); addEventListener('hashchange', route);
   dash.onData(linkify);
   const waitDash = () => new Promise(res => { let n = 0; const id = setInterval(() => { if (dash.data('summary').status === 'ok' || ++n > 300) { clearInterval(id); res(); } }, 100); });
-  Promise.all([loadAll(), waitDash()]).then(() => { snapshot(); buildBar(); buildDetailPanels(); route(); }).catch(e => console.error('탐색 자료 로드 실패', e));
+  Promise.all([loadAll(), waitDash()]).then(() => { snapshot(); buildBar(); buildDetailPanels(); apply(); route(); }).catch(e => console.error('탐색 자료 로드 실패', e));
 })();

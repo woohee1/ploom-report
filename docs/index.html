@@ -186,6 +186,17 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
 .pl a.back{color:var(--color-fg-muted);font-size:13px;text-decoration:none}
 .pl .hero-stats .v.sm{font-size:16px;padding-top:6px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pl a.xl{color:#9fb3d6}}
+
+.pl table.heat{border-collapse:collapse;width:100%;font-size:12px;table-layout:fixed}
+.pl table.heat th{font-weight:500;color:var(--color-fg-muted);padding:4px 2px;text-align:center;border:0}
+.pl table.heat th:first-child{text-align:right;padding-right:8px;width:52px}
+.pl table.heat td{text-align:center;padding:7px 2px;border:2px solid var(--color-panel);border-radius:4px;font-variant-numeric:tabular-nums}
+.pl table[data-source] thead th[data-field]{cursor:pointer;user-select:none}
+.pl table[data-source] thead th[data-field]:hover{color:var(--navy-2)}
+.pl table[data-source] thead th.asc::after{content:' ▲';font-size:9px}
+.pl table[data-source] thead th.desc::after{content:' ▼';font-size:9px}
+.pl .x-extra>h2{margin-top:var(--cds-gap-xl);font-size:17px;color:var(--color-fg-muted)}
+.pl .toolbar input[type=search]{padding:7px 10px}
 </style>
 </head>
 <body>
@@ -820,6 +831,7 @@ showPanel();
 
 let _rt; addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(() => dash.render(), 150); });
 </script>
-<script src="explore.js?v=3"></script>
+<script src="explore.js?v=5"></script>
+<script src="explore2.js?v=2"></script>
 </body>
 </html>
