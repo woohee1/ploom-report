@@ -19,7 +19,12 @@ function doGet(e) {
   const adminKey = props.getProperty('ADMIN_KEY') || key;
   if (p.view === 'today') {
     if (!adminKey || p.key !== adminKey) return text('forbidden');
-    return json(todayView(p.date));
+    const ck = 'today_' + (p.date || 'today'), cache = CacheService.getScriptCache();
+    const hit = cache.get(ck);
+    if (hit) return text(hit).setMimeType(ContentService.MimeType.JSON);   // 90초 안에는 같은 결과
+    const out = JSON.stringify(todayView(p.date));
+    try { cache.put(ck, out, 90); } catch (e) {}
+    return text(out).setMimeType(ContentService.MimeType.JSON);
   }
   if (!key || p.key !== key) return text('forbidden');
   const sales = SpreadsheetApp.openById(p.sales_id || SALES_ID);
@@ -38,14 +43,16 @@ function doGet(e) {
 function text(s) { return ContentService.createTextOutput(s).setMimeType(ContentService.MimeType.TEXT); }
 function json(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 
-// 머리글 1행 + 자료 행 (화면에 보이는 문자열 그대로)
-function block(sh, cols) {
+// 머리글 1행 + 자료 행 (화면에 보이는 문자열 그대로). tail 을 주면 마지막 tail 행만 (오늘 현황은 최근 기록만 필요)
+function block(sh, cols, tail) {
   if (!sh) return null;
   const n = sh.getLastRow();
   if (n < 1) return { header: [], rows: [] };
-  const v = sh.getRange(1, 1, n, cols).getDisplayValues();
-  const rows = v.slice(1).filter(r => r.some(c => String(c).trim() !== ''));
-  return { header: v[0], rows: rows };
+  const header = sh.getRange(1, 1, 1, cols).getDisplayValues()[0];
+  const start = tail ? Math.max(2, n - tail + 1) : 2;
+  if (n < start) return { header: header, rows: [] };
+  const v = sh.getRange(start, 1, n - start + 1, cols).getDisplayValues();
+  return { header: header, rows: v.filter(r => r.some(c => String(c).trim() !== '')) };
 }
 
 // 팀배정: '인력사' 머리글 행 아래의 [인력사, 구분, 수퍼바이저, 팀번호]
@@ -80,8 +87,8 @@ function todayView(date) {
   const ops = SpreadsheetApp.openById(OPS_ID);
   const sTab = sales.getSheetByName(month + '월 세일즈 제출');
   const sb = sTab ? block(sTab, 20) : { rows: [] };
-  const ab = block(ops.getSheetByName('활동이동로그'), 22) || { rows: [] };
-  const vb = block(ops.getSheetByName('SV개입_기록'), 13) || { rows: [] };
+  const ab = block(ops.getSheetByName('활동이동로그'), 22, 2500) || { rows: [] };
+  const vb = block(ops.getSheetByName('SV개입_기록'), 13, 500) || { rows: [] };
   const tm = teamMap(ops.getSheetByName('팀배정')) || [];
 
   const info = {};

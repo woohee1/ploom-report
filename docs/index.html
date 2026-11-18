@@ -200,7 +200,7 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
   <div class="panel" id="p-today" hidden>
     <div class="card gate" id="gate">
       <h3>관리자 접속</h3>
-      <p class="muted">오늘 현황은 구글 시트에서 바로 읽어 옵니다. 팀 비밀번호를 입력하세요.</p>
+      <p class="muted">이 비밀번호는 오늘 현황(실시간 시트 집계)에만 필요합니다. 다른 메뉴는 그냥 보입니다.</p>
       <form id="gate-form"><input type="password" id="gate-key" placeholder="비밀번호" autocomplete="current-password"><button type="submit">들어가기</button></form>
       <p class="muted" id="gate-msg"></p>
     </div>
@@ -738,14 +738,17 @@ const $ = id => document.getElementById(id);
 function kstToday() { const d = new Date(Date.now() + 9 * 3600 * 1000); return d.toISOString().slice(0, 10); }
 function liveKey() { try { return localStorage.getItem('ploom_admin_key') || ''; } catch (e) { return ''; } }
 function liveGate(msg) {
-  $('gate').hidden = false; $('live').hidden = true; $('gate-msg').textContent = msg || '';
+  $('gate').hidden = false; $('live').hidden = true; $('gate-form').hidden = false; $('gate-msg').textContent = msg || '';
   if (live.timer) { clearInterval(live.timer); live.timer = null; }
 }
 async function liveLoad(force) {
   const key = liveKey(); if (!key) { liveGate(''); return; }
   if (live.loading) return; live.loading = true;
   const date = $('live-date').value || kstToday();
-  $('live-asof').textContent = '불러오는 중…';
+  // 기억해 둔 마지막 결과가 있으면 먼저 보여 주고 뒤에서 새로 읽음
+  if (!live.data) { const c = liveCached(date); if (c) liveShow(c); }
+  if (live.data) { $('live-asof').textContent = '시트에서 새로 읽는 중… (10~20초)'; }
+  else { $('gate').hidden = false; $('live').hidden = true; $('gate-form').hidden = true; $('gate-msg').textContent = '비밀번호를 확인하고 시트를 읽는 중입니다. 10~20초 걸립니다…'; }
   try {
     const ctl = new AbortController(); const tmo = setTimeout(() => ctl.abort(), 45000);
     const r = await fetch(LIVE_URL + '?view=today&key=' + encodeURIComponent(key) + '&date=' + date + '&_=' + Date.now(), { redirect: 'follow', signal: ctl.signal }).finally(() => clearTimeout(tmo));
@@ -755,21 +758,28 @@ async function liveLoad(force) {
     if (!j.summary) { liveGate('시트 스크립트가 아직 옛 버전입니다. 새 버전으로 배포한 뒤 다시 시도하세요.'); return; }
     (j.teams || []).forEach(t => { if (t.상태 === '무판매') t.상태 = '미판매'; });
     (j.summary || []).forEach(s => { if (s.미판매팀 == null && s.무판매팀 != null) s.미판매팀 = s.무판매팀; });
-    live.data = j;
-    dash.set('live_summary', j.summary); dash.set('live_hours', j.hours); dash.set('live_agency', j.agency);
-    dash.set('live_sv', j.sv); dash.set('live_recent', j.recent);
-    liveApplyFilter();
-    $('gate').hidden = true; $('live').hidden = false;
-    $('live-asof').textContent = '시트 기준 ' + j.as_of;
-    $('live-tab').textContent = j.sales_tab;
-    $('live-title').textContent = (j.date === kstToday() ? '오늘 현황 ' : '현황 ') + j.date;
-    dash.render();
+    liveShow(j);
+    try { localStorage.setItem('ploom_live_cache', JSON.stringify(j)); } catch (e) {}
     if (!live.timer) live.timer = setInterval(() => liveLoad(), 5 * 60 * 1000);
   } catch (e) {
     console.error(e);
     $('live-asof').textContent = (e && e.name === 'AbortError') ? '응답이 없습니다(45초). 잠시 후 새로고침하세요.' : '불러오지 못했습니다. 잠시 후 새로고침하세요.';
-    if (!live.data) liveGate('시트에 연결하지 못했습니다. 스크립트가 새 버전으로 배포됐는지 확인하세요.');
-  } finally { live.loading = false; }
+    if (!live.data) liveGate('시트에 연결하지 못했습니다. 잠시 후 다시 시도하세요.');
+  } finally { live.loading = false; $('gate-form').hidden = false; }
+}
+function liveShow(j) {
+  live.data = j;
+  dash.set('live_summary', j.summary); dash.set('live_hours', j.hours); dash.set('live_agency', j.agency);
+  dash.set('live_sv', j.sv); dash.set('live_recent', j.recent);
+  liveApplyFilter();
+  $('gate').hidden = true; $('live').hidden = false;
+  $('live-asof').textContent = '시트 기준 ' + j.as_of;
+  $('live-tab').textContent = j.sales_tab;
+  $('live-title').textContent = (j.date === kstToday() ? '오늘 현황 ' : '현황 ') + j.date;
+  dash.render();
+}
+function liveCached(date) {
+  try { const j = JSON.parse(localStorage.getItem('ploom_live_cache') || 'null'); return (j && j.date === date && j.summary) ? j : null; } catch (e) { return null; }
 }
 function liveApplyFilter() {
   if (!live.data) return;
@@ -785,9 +795,9 @@ $('gate-form').addEventListener('submit', ev => {
 });
 $('live-refresh').addEventListener('click', () => liveLoad(true));
 document.querySelectorAll('#live .card.foldable > h3').forEach(el => el.addEventListener('click', () => el.parentElement.classList.toggle('folded')));
-$('live-date').addEventListener('change', () => liveLoad(true));
+$('live-date').addEventListener('change', () => { live.data = null; liveLoad(true); });
 $('live-only-warn').addEventListener('change', () => { liveApplyFilter(); dash.render(); });
-$('live-lock').addEventListener('click', () => { try { localStorage.removeItem('ploom_admin_key'); } catch (e) {} live.data = null; liveGate('잠갔습니다.'); });
+$('live-lock').addEventListener('click', () => { try { localStorage.removeItem('ploom_admin_key'); localStorage.removeItem('ploom_live_cache'); } catch (e) {} live.data = null; liveGate('잠갔습니다.'); });
 $('live-date').value = kstToday();
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('p-today').hidden && liveKey()) liveLoad(); });
 
