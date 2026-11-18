@@ -132,6 +132,21 @@ def summ(df):
     })
 ops = g.apply(summ).reset_index()
 sales_td = s.groupby(["일자","팀"]).agg(판매=("수량","sum"), 건수=("수량","size"), 스타벅스=("스타벅스","sum"), 판매점포수=("점포코드","nunique")).reset_index()
+# 시트에 없는 달(지난달 운영 보관본)의 판매는 공개 자료 docs/data/rows_long.json(폼즈 통합)에서 보충
+longp = os.path.join(ROOT, "docs", "data", "rows_long.json")
+if os.path.exists(longp):
+    lj = json.load(open(longp, encoding="utf-8")); lc = lj["cols"]; ld = lj.get("dict", {})
+    lrows = [{c: (ld[c][v] if (c in ld and v is not None) else v) for c, v in zip(lc, r)} for r in lj["rows"]]
+    L = pd.DataFrame(lrows)
+    sheet_months = set(s["일자"].dropna().str[:7])
+    L = L[~L["일자"].str[:7].isin(sheet_months)]
+    if len(L):
+        L["팀"] = pd.to_numeric(L["팀"], errors="coerce"); L["수량"] = pd.to_numeric(L["수량"], errors="coerce").fillna(0); L["스타벅스"] = pd.to_numeric(L["스타벅스"], errors="coerce").fillna(0)
+        ltd = L.groupby(["일자","팀"]).agg(판매=("수량","sum"), 건수=("수량","size"), 스타벅스=("스타벅스","sum"), 판매점포수=("점포코드","nunique")).reset_index()
+        # 운영 보관본이 있는 달만 (활동 기록 없는 달의 판매 팀·일은 넣지 않음)
+        act_months = set(a["일자"].dropna().str[:7])
+        ltd = ltd[ltd["일자"].str[:7].isin(act_months)]
+        sales_td = pd.concat([sales_td, ltd], ignore_index=True)
 ops = ops.merge(sales_td, on=["일자","팀"], how="outer")
 ops["인력사"] = ops["인력사"].fillna(ops["팀"].map(agency_of)); ops["SV"] = [sv_of(tm_, d_) for tm_, d_ in zip(ops["팀"], ops["일자"])]
 ops["판매"] = ops["판매"].fillna(0)
