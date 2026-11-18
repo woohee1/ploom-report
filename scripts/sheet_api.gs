@@ -110,7 +110,7 @@ function todayView(date) {
     const o = T(t), time = hhmm(r[2]), kind = String(r[7]).trim();
     if (!o.에이전트 && r[5]) o.에이전트 = r[5];
     if (kind.indexOf('활동시작') >= 0 && (!o.활동시작 || time < o.활동시작)) o.활동시작 = time;
-    if (kind.indexOf('활동종료') >= 0) o.활동종료 = time; else if (kind.indexOf('활동시작') >= 0) o.활동종료 = '';
+    if (kind.indexOf('활동종료') >= 0) o.활동종료 = time; else if (kind.indexOf('활동시작') >= 0 && time > o.활동종료) o.활동종료 = '';
     if (kind.indexOf('이동') >= 0 && kind !== '활동시작') o.이동++;
     if (time >= o._last) { o._last = time; o.마지막기록 = time + ' ' + kind; if (r[11]) o.현재점포 = r[11]; }
   });
