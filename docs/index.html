@@ -175,13 +175,24 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
 .pl .filters{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:8px;font-size:12.5px}
 .pl .filters label{display:flex;align-items:center;gap:6px}
 .pl .hero-stats{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+
+.pl .xbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:13px;box-shadow:var(--card-shadow)}
+.pl .xbar label{display:flex;align-items:center;gap:6px;color:var(--color-fg-muted);white-space:nowrap}
+.pl .xbar select,.pl .xbar input{padding:5px 8px;border:1px solid var(--color-border-line);border-radius:8px;background:var(--color-panel);color:var(--color-fg);font-size:13px}
+.pl .xbar .xf-chips{margin-left:auto}
+.pl .card.nofilter{opacity:.5}
+.pl .card.nofilter>h3::after{content:'필터 미적용';font-size:11px;font-weight:500;color:var(--color-fg-muted);border:1px solid var(--color-border-line);border-radius:999px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.pl a.xl{color:var(--navy-2);text-decoration:underline dotted;cursor:pointer}
+.pl a.back{color:var(--color-fg-muted);font-size:13px;text-decoration:none}
+.pl .hero-stats .v.sm{font-size:16px;padding-top:6px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pl a.xl{color:#9fb3d6}}
 </style>
 </head>
 <body>
 
 <div class="app">
 <aside class="side"><div class="brand"><div class="logo">P</div><div><b>플룸 현장 판매</b><span>분석 보고서</span></div></div>
-  <nav class="tabs" id="tabs"><a href="#today" data-panel="p-today" data-title="오늘 현황" title="오늘 현황"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M4.5 4.5l2 2M19.5 4.5l-2 2"/></svg><span>오늘 현황</span></a><a href="#overview" data-panel="p-overview" data-title="한눈에 보기" title="한눈에 보기"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span>한눈에 보기</span></a><a href="#long-volume" data-panel="p-long-volume" data-title="월별 흐름" title="월별 흐름"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l4-5 3 3 5-7"/></svg><span>월별 흐름</span></a><a href="#long-recommend" data-panel="p-long-recommend" data-title="추천 검증" title="추천 검증"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>추천 검증</span></a><a href="#long-store" data-panel="p-long-store" data-title="점포" title="점포"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg><span>점포</span></a><a href="#long-ops" data-panel="p-long-ops" data-title="운영 리듬" title="운영 리듬"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>운영 리듬</span></a><a href="#long-mix" data-panel="p-long-mix" data-title="상품·고객" title="상품·고객"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg><span>상품·고객</span></a><a href="#long-people" data-panel="p-long-people" data-title="사람" title="사람"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A5 5 0 0 1 21 19"/></svg><span>사람</span></a><a href="#nov-intro" data-panel="p-nov-intro" data-title="11월 상세" title="11월 상세"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>11월 상세</span></a><a href="#actions" data-panel="p-actions" data-title="행동 제안" title="행동 제안"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-5"/><circle cx="12" cy="12" r="9"/></svg><span>행동 제안</span></a></nav>
+  <nav class="tabs" id="tabs"><a href="#today" data-panel="p-today" data-title="오늘 현황" title="오늘 현황"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M4.5 4.5l2 2M19.5 4.5l-2 2"/></svg><span>오늘 현황</span></a><a href="#overview" data-panel="p-overview" data-title="한눈에 보기" title="한눈에 보기"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span>한눈에 보기</span></a><a href="#long-volume" data-panel="p-long-volume" data-title="월별 흐름" title="월별 흐름"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l4-5 3 3 5-7"/></svg><span>월별 흐름</span></a><a href="#long-store" data-panel="p-long-store" data-title="점포" title="점포"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg><span>점포</span></a><a href="#long-ops" data-panel="p-long-ops" data-title="운영 리듬" title="운영 리듬"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>운영 리듬</span></a><a href="#long-mix" data-panel="p-long-mix" data-title="상품·고객" title="상품·고객"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg><span>상품·고객</span></a><a href="#long-people" data-panel="p-long-people" data-title="사람" title="사람"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A5 5 0 0 1 21 19"/></svg><span>사람</span></a><a href="#nov-intro" data-panel="p-nov-intro" data-title="11월 상세" title="11월 상세"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>11월 상세</span></a><a href="#actions" data-panel="p-actions" data-title="행동 제안" title="행동 제안"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-5"/><circle cx="12" cy="12" r="9"/></svg><span>행동 제안</span></a></nav>
   <div class="side-foot">자료 기준<br><span id="updated">—</span></div>
 </aside>
 <main class="pl" id="top">
@@ -229,7 +240,7 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
     </div>
   </div>
   <div class="panel" id="p-overview" hidden>
-  <p class="lead" data-read lang="ko">4월 13일부터 11월 16일까지 <b data-draw="num" data-source="summary_all" data-field="운영일수" data-row="0">—</b>일 동안 <b data-draw="num" data-source="summary_all" data-field="총판매" data-row="0">—</b>대를 팔았습니다. 월 판매는 2,300~3,000대 사이를 오갔지만 팀 하나가 하루에 파는 수는 4월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</b>대에서 10월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</b>대로 꾸준히 내려왔습니다. 추천 목록 점포가 "3배"를 판다는 11월 결과는 검증해 보니 대부분 순환 효과였고, 11월 전에 확정된 추천 점포의 실제 이점은 같은 팀 기준 하루 0.4대 정도였습니다.</p>
+  <p class="lead" data-read lang="ko">4월 13일부터 11월 16일까지 <b data-draw="num" data-source="summary_all" data-field="운영일수" data-row="0">—</b>일 동안 <b data-draw="num" data-source="summary_all" data-field="총판매" data-row="0">—</b>대를 팔았습니다. 월 판매는 2,300~3,000대 사이를 오갔지만 팀 하나가 하루에 파는 수는 4월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</b>대에서 10월 <b data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</b>대로 꾸준히 내려왔습니다.</p>
 
   <section class="ov" id="overview">
     <div class="hero"><div class="hero-top"><b>4~11월 누적</b><span>11월 판매 <i data-draw="num" data-source="summary" data-field="판매대수" data-row="0">—</i>대 · 하루 평균 <i data-draw="num" data-source="monthly" data-field="일평균" data-where="월=11월" data-fmt=".0f">—</i>대 · 활동 팀·일 <i data-draw="num" data-source="summary" data-field="활동팀일" data-row="0">—</i>건</span></div>
@@ -241,7 +252,7 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
       </div></div>
     <div class="kpis">
       <div class="kpi"><div class="k">팀·일당 판매, 4월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=4월" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">10월 <span data-draw="num" data-source="monthly" data-field="팀일당" data-where="월=10월" data-fmt=".2f">—</span>대</div><div class="ic o"><svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 4 7-8"/><path d="M16 7h4v4"/></svg></div></div>
-      <div class="kpi"><div class="k">추천 점포 실제 이점 (팀 내)</div><div class="v"><span data-draw="num" data-source="rec_outofsample_team" data-field="추천일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div><div class="s">추천 외 <span data-draw="num" data-source="rec_outofsample_team" data-field="추천외일평균" data-row="0" data-fmt=".2f">—</span>대</div><div class="ic p"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div></div>
+      <div class="kpi"><div class="k">판매 점포 수, 누적</div><div class="v"><span data-draw="num" data-source="store_concentration" data-field="점포수" data-row="0">—</span><span class="u">곳</span></div><div class="s">한 번만 판매 <span data-draw="num" data-source="store_concentration" data-field="한번만판매점포비중" data-row="0" data-fmt=".0f">—</span>%</div><div class="ic p"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div></div>
       <div class="kpi"><div class="k">20일 이상 활동 에이전트</div><div class="v"><span data-draw="num" data-source="summary_all" data-field="20일이상" data-row="0">—</span><span class="u">명</span></div><div class="s">판매의 <span data-draw="num" data-source="summary_all" data-field="20일이상판매비중" data-row="0" data-fmt=".0f">—</span>% · 전체 <span data-draw="num" data-source="summary_all" data-field="에이전트수" data-row="0">—</span>명</div><div class="ic g"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A5 5 0 0 1 21 19"/></svg></div></div>
       <div class="kpi"><div class="k">상위 10% 점포 판매 비중</div><div class="v"><span data-draw="num" data-source="store_concentration" data-field="상위10퍼센트점포판매비중" data-row="0" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s">누적 <span data-draw="num" data-source="store_concentration" data-field="점포수" data-row="0">—</span>곳</div><div class="ic o"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg></div></div>
       <div class="kpi"><div class="k">리필스틱 동반 구매, 11월</div><div class="v"><span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=11월" data-fmt=".0f">—</span><span class="u">%</span></div><div class="s bad">8월 <span data-draw="num" data-source="monthly" data-field="리필동반율" data-where="월=8월" data-fmt=".0f">—</span>%</div><div class="ic r"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M7 9h10"/></svg></div></div>
@@ -297,34 +308,6 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
     </div>
     <div class="card"><h3>일자별 판매 (대, 136일)</h3>
       <div class="chart" data-draw="line" data-source="daily_all" data-x="일자" data-y="판매" data-xfmt="date" data-dots="0"></div>
-    </div>
-  </div>
-
-  </div>
-  <div class="panel" id="p-long-recommend" hidden>
-  <h2 id="long-recommend">B. 추천 목록 검증: "3배"는 대부분 순환 효과, 진짜 이점은 작지만 있다</h2>
-  <p data-read lang="ko">추천 목록 1,497곳은 두 종류입니다. <b data-draw="num" data-source="rec_validation_summary" data-field="실적기반점포수" data-row="0">—</b>곳은 과거 판매 실적으로 뽑은 "실적 기반", <b data-draw="num" data-source="rec_validation_summary" data-field="입지기반점포수" data-row="0">—</b>곳은 오피스·언론사 근접 같은 조건으로 뽑은 "입지 기반"입니다. 입지 기반 점포는 지금까지 판매가 발생한 곳이 4곳뿐이라 아직 효과를 말할 수 없습니다. 추천 효과로 보였던 것은 전부 실적 기반 점포에서 나왔는데, 이 목록은 11월 11일 판매까지 반영해 만들어졌습니다. 11월에 잘 팔린 점포가 목록에 들어간 뒤 그 11월 성과를 재는 셈이라 순환 논리입니다.</p>
-  <p data-read lang="ko">그래서 세 가지로 다시 쟀습니다. 첫째, 같은 팀이 추천 점포에서 시작한 날과 아닌 날을 비교하면 <b data-draw="num" data-source="rec_within_summary" data-field="팀수" data-row="0">—</b>개 팀 중 <b data-draw="num" data-source="rec_within_summary" data-field="추천이높은팀" data-row="0">—</b>개 팀이 추천일에 더 팔았습니다(팀 평균 차이 <b data-draw="num" data-source="rec_within_summary" data-field="평균차이" data-row="0" data-fmt=".2f">—</b>대). 둘째, 11월 전에 이미 확정된 추천 점포만 보면 11월 팀·일 평균은 <b data-draw="num" data-source="rec_outofsample" data-field="팀일평균" data-where="그룹=10월까지 실적으로 확정된 추천" data-fmt=".2f">—</b>대 대 추천 외 <b data-draw="num" data-source="rec_outofsample" data-field="팀일평균" data-where="그룹=추천 외" data-fmt=".2f">—</b>대입니다. 그런데 이것을 같은 팀 안에서 비교하면 <b data-draw="num" data-source="rec_outofsample_team" data-field="추천일평균" data-row="0" data-fmt=".2f">—</b>대 대 <b data-draw="num" data-source="rec_outofsample_team" data-field="추천외일평균" data-row="0" data-fmt=".2f">—</b>대로 좁혀지고, <b data-draw="num" data-source="rec_outofsample_team" data-field="팀수" data-row="0">—</b>개 팀 중 추천일이 높은 팀은 <b data-draw="num" data-source="rec_outofsample_team" data-field="추천이높은팀" data-row="0">—</b>개뿐입니다. 셋째, 목록과 무관하게 4~9월 하루 판매 상위 25% 점포를 10~11월에 다시 보면 <b data-draw="num" data-source="store_persistence" data-field="전기일평균" data-where="구간=상위 25%" data-fmt=".2f">—</b>대에서 <b data-draw="num" data-source="store_persistence" data-field="후기일평균" data-where="구간=상위 25%" data-fmt=".2f">—</b>대로 내려오고, 하위 25%는 <b data-draw="num" data-source="store_persistence" data-field="전기일평균" data-where="구간=하위 25%" data-fmt=".2f">—</b>대에서 <b data-draw="num" data-source="store_persistence" data-field="후기일평균" data-where="구간=하위 25%" data-fmt=".2f">—</b>대로 올라옵니다. 과거에 잘 팔린 점포가 계속 잘 팔리는 힘은 있지만 약하고(상관 0.2), 평균으로 되돌아가는 힘이 더 큽니다.</p>
-  <p data-read lang="ko"><b>결론:</b> 추천 점포는 분명 더 낫지만 하루 0.4~1대 수준이지 3배가 아닙니다. 추천 목록보다 더 큰 차이는 "어떤 팀이 가느냐"와 "그날의 운"에서 납니다. 입지 기반 807곳은 거의 가보지 않았으니 일부 팀에 의도적으로 배정해 실제 성과를 확인하는 것이 목록의 가치를 높이는 가장 빠른 길입니다.</p>
-  <div class="grid2">
-    <div class="card"><h3>11월 전 확정 추천 점포 기준, 11월 시작점포별 팀·일 평균 (대)</h3>
-      <div class="chart sm" data-draw="hbar" data-source="rec_outofsample" data-label="그룹" data-value="팀일평균" data-fmt=".2f" data-sub="팀일"></div>
-      <p class="muted">"11월 실적 반영 추천"은 11월 판매가 목록에 들어간 점포라 순환 효과가 섞여 있습니다. 괄호는 팀·일 수.</p>
-    </div>
-    <div class="card"><h3>4~9월 하루 판매 구간별, 10~11월 하루 판매 (대)</h3>
-      <div class="legend" data-source="store_persistence"><span><i data-c="0"></i>4~9월</span><span><i data-c="1"></i>10~11월</span></div>
-      <div class="chart" data-draw="vbar" data-source="store_persistence" data-x="구간" data-y="전기일평균,후기일평균" data-fmt=".1f" data-grouped="1"></div>
-      <p class="muted">4~9월 2일 이상 판매하고 10~11월에도 판매가 있는 354개 점포.</p>
-    </div>
-    <div class="card"><h3>월별 점포당 판매: 실적 기반 추천 · 입지 기반 추천 · 그 외 (대)</h3>
-      <div class="legend" data-source="rec_group_month"><span><i data-c="0"></i>실적 기반 추천</span><span><i data-c="1"></i>추천 외</span></div>
-      <div class="chart" data-draw="vbar" data-source="rec_group_month" data-x="월" data-y="점포당" data-series="그룹" data-order="실적 기반 추천,추천 외" data-fmt=".1f" data-grouped="1"></div>
-      <p class="muted">입지 기반 추천은 판매 발생 점포가 4곳뿐이라 그래프에서 뺐습니다. 실적 기반 점포의 높은 값은 선정 기준 자체가 판매 실적이라 당연한 결과입니다.</p>
-    </div>
-    <div class="card"><h3>9~10월 대 11월, 그룹별 점포·일 평균 (대)</h3>
-      <div class="legend" data-source="rec_group_period"><span><i data-c="0"></i>9~10월</span><span><i data-c="1"></i>11월</span></div>
-      <div class="chart" data-draw="vbar" data-source="rec_group_period" data-x="그룹" data-y="점포일평균" data-series="기간" data-order="9~10월,11월" data-fmt=".2f" data-grouped="1"></div>
-      <p class="muted">실적 기반 점포는 유지, 그 외 점포는 하락. 새로 개척하는 점포의 질이 낮아지고 있다는 신호입니다.</p>
     </div>
   </div>
 
@@ -405,20 +388,7 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
     <div class="tile"><div class="k">스타벅스 카드 제공</div><div class="v"><span data-draw="num" data-source="summary" data-field="스타벅스" data-row="0">—</span><span class="u">장</span></div></div>
   </div>
 
-  <h2 id="finding-recommend">1. 추천 점포에서 시작한 날이 압도적으로 좋다</h2>
-  <p data-read lang="ko">활동 시작 점포가 추천 목록(1,497곳)에 포함된 팀·일은 하루 평균 <b data-draw="num" data-source="recommend" data-field="팀일평균" data-where="구분=추천 점포에서 시작" data-fmt=".2f">—</b>대, 포함되지 않은 팀·일은 <b data-draw="num" data-source="recommend" data-field="팀일평균" data-where="구분=추천 외 점포에서 시작" data-fmt=".2f">—</b>대였습니다. 무판매 비율도 <b data-draw="num" data-source="recommend" data-field="무판매율" data-where="구분=추천 점포에서 시작" data-fmt=".0f">—</b>% 대 <b data-draw="num" data-source="recommend" data-field="무판매율" data-where="구분=추천 외 점포에서 시작" data-fmt=".0f">—</b>%로 차이가 큽니다. 세 인력사 모두에서 같은 방향입니다. 다만 이 숫자는 그대로 믿으면 안 됩니다. 추천 목록이 11월 11일까지의 판매로 만들어져 11월에 잘 팔린 점포가 목록에 들어간 효과가 섞여 있고, 잘하는 팀이 추천 점포를 더 고르는 경향도 있습니다. 위 B절에서 이를 걷어내고 다시 잰 결과, 실제 이점은 같은 팀 기준 하루 0.4~1대 수준입니다.</p>
-  <div class="grid2">
-    <div class="card"><h3>시작 점포 유형별 하루 평균 판매 (대)</h3>
-      <div class="chart sm" data-draw="hbar" data-source="recommend" data-label="구분" data-value="팀일평균" data-fmt=".2f" data-sub="팀일"></div>
-      <p class="muted">막대 옆 괄호는 팀·일 수. 판매가 발생한 점포 <span data-draw="num" data-source="summary" data-field="판매점포수" data-row="0">—</span>곳 가운데 <span data-draw="num" data-source="summary" data-field="판매발생추천점포" data-row="0">—</span>곳이 추천 목록에 있습니다.</p>
-    </div>
-    <div class="card"><h3>인력사별 비교 (하루 평균, 대)</h3>
-      <div class="legend" data-source="recommend_agency"><span><i data-c="0"></i>추천 점포에서 시작</span><span><i data-c="1"></i>추천 외 점포에서 시작</span></div>
-      <div class="chart" data-draw="vbar" data-source="recommend_agency" data-x="인력사" data-y="팀일평균" data-series="구분" data-fmt=".2f" data-grouped="1"></div>
-    </div>
-  </div>
-
-  <h2 id="finding-agency">2. 인력사와 수퍼바이저에 따라 성과 편차가 매우 크다</h2>
+  <h2 id="finding-agency">1. 인력사와 수퍼바이저에 따라 성과 편차가 매우 크다</h2>
   <p data-read lang="ko">토마스컴퍼니는 활동 팀·일당 <b data-draw="num" data-source="agency" data-field="팀일평균" data-where="인력사=토마스컴퍼니" data-fmt=".2f">—</b>대, 비욘드 <b data-draw="num" data-source="agency" data-field="팀일평균" data-where="인력사=비욘드" data-fmt=".2f">—</b>대, 후킷 <b data-draw="num" data-source="agency" data-field="팀일평균" data-where="인력사=후킷" data-fmt=".2f">—</b>대입니다. 후킷은 활동을 등록한 날의 <b data-draw="num" data-source="agency" data-field="무판매율" data-where="인력사=후킷" data-fmt=".0f">—</b>%가 무판매였습니다. 수퍼바이저 단위로 보면 같은 인력사 안에서도 10배 넘게 갈립니다.</p>
   <div class="card"><h3>인력사 요약</h3>
     <div class="tw"><table data-source="agency" data-row-key="인력사"><thead><tr><th data-field="인력사">인력사</th><th class="n" data-field="판매">판매(대)</th><th class="n" data-field="팀수">판매 팀수</th><th class="n" data-field="활동팀일">활동 팀·일</th><th class="n" data-field="팀일평균">팀·일 평균</th><th class="n" data-field="무판매율">무판매율(%)</th><th class="n" data-field="평균활동시간">평균 활동(시간)</th></tr></thead>
@@ -429,12 +399,12 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
     <p class="muted">이다경(토마스 61팀)은 팀·일 3건뿐이라 참고만 하세요. 괄호는 무판매 팀·일 비율.</p>
   </div>
 
-  <h2 id="finding-zero">3. 활동은 등록했지만 판매가 한 건도 없는 팀이 19개</h2>
+  <h2 id="finding-zero">2. 활동은 등록했지만 판매가 한 건도 없는 팀이 19개</h2>
   <p data-read lang="ko">4일 이상 활동을 등록하고도 판매 제출이 0인 팀입니다. 후킷에 몰려 있고, 비욘드 73·77·81팀은 팀배정표에서 "스텝팀"으로 표시된 팀입니다. 실제로 판매가 없었는지, 아니면 판매를 앱이 아닌 다른 경로로 보고하는지 먼저 확인해야 합니다. 후킷의 무판매율이 높은 이유가 이 팀들 때문이라면 인력사 비교 자체가 달라집니다.</p>
   <div class="card"><div class="tw"><table data-source="zero_teams" data-row-key="인력사,팀"><thead><tr><th data-field="인력사">인력사</th><th class="n" data-field="팀">팀</th><th class="n" data-field="활동일수">활동 등록 일수</th><th class="n" data-field="판매">판매</th></tr></thead>
     <tbody data-draw="tbl" data-cols="인력사,팀,활동일수,판매" data-fmts=",,,"></tbody></table></div></div>
 
-  <h2 id="trend">4. 일자별 추이와 시간대</h2>
+  <h2 id="trend">3. 일자별 추이와 시간대</h2>
   <p data-read lang="ko">하루 판매는 11월 12일(목)이 가장 많았고, 둘째 주 들어 첫 주보다 올라왔습니다. 11월 17일은 분석 시점 오후 2시 기준이라 하루치가 아닙니다. 시간대는 11~12시와 15시에 두 봉우리가 있고, 점심 직후 13~14시가 가장 낮습니다.</p>
   <div class="grid2">
     <div class="card"><h3>일자별 판매 (대, 인력사별 누적)</h3>
@@ -446,7 +416,7 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
     </div>
   </div>
 
-  <h2 id="store">5. 어떤 점포가 잘 팔리나</h2>
+  <h2 id="store">4. 어떤 점포가 잘 팔리나</h2>
   <p data-read lang="ko">흡연구역이 있는 점포가 전체 판매의 3분의 2를 차지합니다. 브랜드별 점포당 판매는 CU 흡연구역이 가장 높고 이마트24가 가장 낮습니다. 같은 점포를 다시 방문할수록 하루 판매가 올라가는 경향이 뚜렷해서, 한 번 팔린 점포를 버리지 않는 것이 중요합니다. 서울역·용산 일대가 지역 전체 판매의 핵심입니다.</p>
   <div class="grid2">
     <div class="card"><h3>점포 구분 × 브랜드, 점포당 판매 (대)</h3>
@@ -459,8 +429,8 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
   </div>
   <div class="grid2" style="margin-top:var(--cds-gap-md)">
     <div class="card"><h3>판매 상위 점포</h3>
-      <div class="tw"><table data-source="top_stores" data-row-key="점포코드"><thead><tr><th data-field="점포명">점포</th><th data-field="브랜드">브랜드</th><th data-field="구분">구분</th><th class="n" data-field="판매">판매</th><th class="n" data-field="판매일수">판매일</th><th class="n" data-field="팀수">팀수</th><th data-field="추천점포">추천</th></tr></thead>
-      <tbody data-draw="tbl" data-cols="점포명,브랜드,구분,판매,판매일수,팀수,추천점포" data-fmts=",,,,,," data-key="점포코드"></tbody></table></div>
+      <div class="tw"><table data-source="top_stores" data-row-key="점포코드"><thead><tr><th data-field="점포명">점포</th><th data-field="브랜드">브랜드</th><th data-field="구분">구분</th><th class="n" data-field="판매">판매</th><th class="n" data-field="판매일수">판매일</th><th class="n" data-field="팀수">팀수</th></tr></thead>
+      <tbody data-draw="tbl" data-cols="점포명,브랜드,구분,판매,판매일수,팀수" data-fmts=",,,,,," data-key="점포코드"></tbody></table></div>
     </div>
     <div class="card"><h3>시군구별 판매 상위</h3>
       <div class="tw"><table data-source="region" data-row-key="시도,시군구"><thead><tr><th data-field="시도">시도</th><th data-field="시군구">시군구</th><th class="n" data-field="판매">판매</th><th class="n" data-field="점포수">점포수</th><th class="n" data-field="점포당판매">점포당</th></tr></thead>
@@ -468,12 +438,12 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
     </div>
   </div>
 
-  <h2 id="insight">6. 점포 인사이트 항목은 아직 판매를 가르지 못한다</h2>
+  <h2 id="insight">5. 점포 인사이트 항목은 아직 판매를 가르지 못한다</h2>
   <p data-read lang="ko">점포 인사이트에 기록된 흡연 스팟 유무, 유동량, 점주 태도별 점포당 판매를 비교하면 차이가 작습니다. "유동 많음"과 "유동 적음"의 점포당 판매가 거의 같다는 점이 특히 눈에 띕니다. 인사이트가 틀렸다기보다 현재 기록 방식(자유 입력, 항목 누락)이 분석에 쓰기엔 거칠다는 뜻이며, 선택형 항목으로 통일하면 쓸모가 커집니다.</p>
   <div class="card"><div class="tw"><table data-source="insight" data-row-key="항목,값"><thead><tr><th data-field="항목">항목</th><th data-field="값">값</th><th class="n" data-field="점포수">점포수</th><th class="n" data-field="판매">판매</th><th class="n" data-field="점포당판매">점포당 판매</th></tr></thead>
     <tbody data-draw="tbl" data-cols="항목,값,점포수,판매,점포당판매" data-fmts=",,,,.2f"></tbody></table></div></div>
 
-  <h2 id="ops">7. 이동과 활동 시간</h2>
+  <h2 id="ops">6. 이동과 활동 시간</h2>
   <p data-read lang="ko">하루에 점포를 한 번이라도 옮긴 팀·일은 <b data-draw="num" data-source="ops" data-field="팀일평균" data-where="구간=1회 이동" data-fmt=".2f">—</b>대, 두 번 이상은 <b data-draw="num" data-source="ops" data-field="팀일평균" data-where="구간=2회 이상" data-fmt=".2f">—</b>대로, 머무른 팀·일(<b data-draw="num" data-source="ops" data-field="팀일평균" data-where="구간=이동 없음" data-fmt=".2f">—</b>대)보다 높습니다. 그런데 이동 자체가 전체 팀·일의 12%에 그칩니다. 안 팔리는 자리에서 버티는 날이 많다는 뜻입니다. 이동 사유의 절반 이상이 "유동인구 부족"입니다. 활동 시간은 7~8시간대가 가장 좋고, 그 이상은 오히려 낮습니다(표본 10건).</p>
   <div class="grid2">
     <div class="card"><h3>이동 횟수·활동 시간 구간별 하루 평균 판매 (대)</h3>
@@ -484,7 +454,7 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
     </div>
   </div>
 
-  <h2 id="customer">8. 누가 사는가</h2>
+  <h2 id="customer">7. 누가 사는가</h2>
   <p data-read lang="ko">구매자의 81%가 남성이고 30~50대가 중심입니다. 여성 구매자는 20~30대 비중이 높습니다. 색상은 네이비 블루가 1위이지만 로즈골드가 20~40대에서 강하고, 구매자의 60%는 연초 사용자입니다. 리필스틱 동반 구매는 4건 중 1건 수준이며 아틱과 앰버에 집중됩니다.</p>
   <div class="grid2">
     <div class="card"><h3>연령대 × 성별 판매 (대)</h3>
@@ -838,5 +808,6 @@ showPanel();
 
 let _rt; addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(() => dash.render(), 150); });
 </script>
+<script src="explore.js?v=2"></script>
 </body>
 </html>

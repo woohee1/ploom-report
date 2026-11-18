@@ -15,6 +15,7 @@
    ```
    py -3 scripts/build.py        # 11월 시트 → 중간 CSV
    py -3 scripts/export.py       # 11월 상세 집계
+   py -3 scripts/export_rows.py  # 탐색용 건 단위 자료 (필터·팀 상세·점포 상세)
    py -3 scripts/export2.py      # 4월~ 장기 집계 (폼즈 자료 필요)
    py -3 scripts/validate.py     # 추천 목록 검증
    py -3 scripts/publish.py "2026-11-18 08:00"

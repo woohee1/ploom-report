@@ -19,6 +19,8 @@ python scripts/fetch_sheets.py
 pip install pandas openpyxl   # 없으면
 python scripts/build.py
 python scripts/export.py
+python scripts/export_rows.py   # 탐색용 건 단위 자료 (docs/data/rows_*.json, team_day.json, activity.json)
+python scripts/export.py
 python scripts/publish.py "$(cat work/data/fetched_at.txt)"
 ```
 

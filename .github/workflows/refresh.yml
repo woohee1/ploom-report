@@ -33,6 +33,7 @@ jobs:
         run: |
           python scripts/build.py
           python scripts/export.py
+          python scripts/export_rows.py
           python scripts/publish.py "$(cat work/data/fetched_at.txt)"
 
       - name: 판매대수 확인 (줄었으면 중단)
