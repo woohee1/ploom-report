@@ -122,7 +122,8 @@ body{padding:0}
 .side .tabs a:hover{color:#fff;background:rgba(255,255,255,.06)}
 .side .tabs a.on{background:#fff;color:var(--navy);font-weight:700;box-shadow:none}
 .side .side-foot{margin-top:auto;font-size:11px;color:#9fb0cf;line-height:1.5;padding:0 8px}.side .side-foot span{color:#fff}
-main.pl{max-width:none;padding:26px 28px 48px;min-width:0}
+main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32px 48px;min-width:0}
+.pl .panel{max-width:1720px}
 .pl .head{align-items:center;margin-bottom:18px}
 .pl .head h1{margin:0 !important;font-size:22px !important}
 .pl .badge{margin-top:0;background:var(--color-panel);color:var(--color-fg-muted);box-shadow:var(--card-shadow)}
@@ -158,6 +159,10 @@ main.pl{max-width:none;padding:26px 28px 48px;min-width:0}
 .pl .toolbar label{display:flex;align-items:center;gap:6px;color:var(--color-fg-muted)}
 .pl .toolbar input[type=date]{padding:6px 10px}
 .pl .hero-stats .v.warn{color:#ffb4a8}
+.pl .live-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:var(--cds-gap-md);align-items:start}
+.pl .live-grid .card{margin-bottom:var(--cds-gap-md)}
+.pl .chart.lg{min-height:230px}
+@media (max-width:1180px){.pl .live-grid{grid-template-columns:1fr}}
 .pl .filters{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:8px;font-size:12.5px}
 .pl .filters label{display:flex;align-items:center;gap:6px}
 .pl .hero-stats{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
@@ -195,19 +200,23 @@ main.pl{max-width:none;padding:26px 28px 48px;min-width:0}
           <div><div class="k">활동 기록 없음</div><div class="v warn"><span data-draw="num" data-source="live_summary" data-field="활동없음팀" data-row="0">—</span><span class="u">팀</span></div></div>
           <div><div class="k">SV 개입</div><div class="v"><span data-draw="num" data-source="live_summary" data-field="SV개입" data-row="0">—</span><span class="u">건</span></div></div>
         </div></div>
-      <div class="grid3" style="margin-bottom:var(--cds-gap-md)">
-        <div class="card"><h3>시간대별 누적 판매 (대)</h3><div class="chart" data-draw="line" data-source="live_hours" data-x="시간" data-y="누적" data-xsuffix="시" data-fmt=","></div></div>
+      <div class="live-grid">
+      <div class="live-main">
+        <div class="card"><h3>시간대별 누적 판매 (대)</h3><div class="chart lg" data-draw="line" data-source="live_hours" data-x="시간" data-y="누적" data-xsuffix="시" data-fmt=","></div></div>
+        <div class="card"><h3>팀별 현황</h3>
+          <div class="filters"><label><input type="checkbox" id="live-only-warn"> 경고만 보기</label><span class="muted">상태 기준: 12시 이후 판매 0이면 무판매, 활동 시작 기록이 없으면 활동 없음</span></div>
+          <div class="tw"><table data-source="live_teams" data-row-key="팀" id="live-teams-table"><thead><tr><th data-field="인력사">인력사</th><th class="n" data-field="팀">팀</th><th data-field="SV">SV</th><th data-field="에이전트">에이전트</th><th data-field="활동시작">활동 시작</th><th data-field="현재점포">현재 점포</th><th class="n" data-field="이동">이동</th><th class="n" data-field="판매">판매</th><th data-field="마지막기록">마지막 기록</th><th data-field="상태">상태</th></tr></thead>
+            <tbody data-draw="tbl" data-cols="인력사,팀,SV,에이전트,활동시작,현재점포,이동,판매,마지막기록,상태" data-fmts=",d,,,,,,,,"></tbody></table></div></div>
+      </div>
+      <div class="live-side">
         <div class="card"><h3>인력사별 판매 (대)</h3><div class="chart sm" data-draw="hbar" data-source="live_agency" data-label="인력사" data-value="판매"></div></div>
         <div class="card"><h3>최근 판매</h3><div class="tw"><table data-source="live_recent" data-row-key="시간,팀,점포"><thead><tr><th data-field="시간">시간</th><th class="n" data-field="팀">팀</th><th data-field="점포">점포</th><th class="n" data-field="수량">수량</th></tr></thead>
           <tbody data-draw="tbl" data-cols="시간,팀,점포,수량" data-fmts=",,,"></tbody></table></div></div>
+        <div class="card"><h3>SV 개입 기록</h3>
+          <div class="tw"><table data-source="live_sv" data-row-key="인력사,팀,시간"><thead><tr><th data-field="시간">시간</th><th class="n" data-field="팀">팀</th><th data-field="SV">SV</th><th data-field="개입구분">구분</th><th class="n" data-field="개입전">전</th><th class="n" data-field="개입후">후</th><th data-field="효과">효과</th></tr></thead>
+            <tbody data-draw="tbl" data-cols="시간,팀,SV,개입구분,개입전,개입후,효과" data-fmts=",d,,,,,"></tbody></table></div></div>
       </div>
-      <div class="card" style="margin-bottom:var(--cds-gap-md)"><h3>팀별 현황</h3>
-        <div class="filters"><label><input type="checkbox" id="live-only-warn"> 경고만 보기</label><span class="muted">상태 기준: 12시 이후 판매 0이면 무판매, 활동 시작 기록이 없으면 활동 없음</span></div>
-        <div class="tw"><table data-source="live_teams" data-row-key="팀" id="live-teams-table"><thead><tr><th data-field="인력사">인력사</th><th class="n" data-field="팀">팀</th><th data-field="SV">SV</th><th data-field="에이전트">에이전트</th><th data-field="활동시작">활동 시작</th><th data-field="현재점포">현재 점포</th><th class="n" data-field="이동">이동</th><th class="n" data-field="판매">판매</th><th data-field="마지막기록">마지막 기록</th><th data-field="상태">상태</th></tr></thead>
-          <tbody data-draw="tbl" data-cols="인력사,팀,SV,에이전트,활동시작,현재점포,이동,판매,마지막기록,상태" data-fmts=",d,,,,,,,,"></tbody></table></div></div>
-      <div class="card"><h3>SV 개입 기록</h3>
-        <div class="tw"><table data-source="live_sv" data-row-key="인력사,팀,시간"><thead><tr><th data-field="시간">시간</th><th data-field="인력사">인력사</th><th class="n" data-field="팀">팀</th><th data-field="SV">SV</th><th data-field="개입구분">구분</th><th class="n" data-field="개입전">개입 전</th><th class="n" data-field="개입후">개입 후</th><th data-field="효과">효과</th></tr></thead>
-          <tbody data-draw="tbl" data-cols="시간,인력사,팀,SV,개입구분,개입전,개입후,효과" data-fmts=",,d,,,,,"></tbody></table></div></div>
+      </div>
     </div>
   </div>
   <div class="panel" id="p-overview" hidden>
