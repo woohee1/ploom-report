@@ -14,7 +14,7 @@ m = s.groupby("월").agg(판매=("수량","sum"), 일수=("일자","nunique"), �
 m["일평균"] = m["판매"]/m["일수"]; m["팀일당"] = m["판매"]/m["판매팀일"]; m["점포당"] = m["판매"]/m["점포수"]
 print(m.round(2))
 sec("월별 인력사"); x = s.groupby(["월","인력사"]).agg(판매=("수량","sum"), 팀일=("팀일","nunique"), 팀수=("팀","nunique")); x["팀일당"]=(x["판매"]/x["팀일"]).round(2); print(x.unstack(1).round(2))
-sec("방문점포(storeday) 월별"); tt = t.groupby("월").agg(점포일=("점포코드","size"), 무판매=("판매량", lambda v:(v==0).sum()), 판매량=("판매량","sum"), 점포수=("점포코드","nunique")); tt["무판매율"]=(tt["무판매"]/tt["점포일"]*100).round(1); tt["점포일당"]=(tt["판매량"]/tt["점포일"]).round(2); print(tt)
+sec("방문점포(storeday) 월별"); tt = t.groupby("월").agg(점포일=("점포코드","size"), 미판매=("판매량", lambda v:(v==0).sum()), 판매량=("판매량","sum"), 점포수=("점포코드","nunique")); tt["미판매율"]=(tt["미판매"]/tt["점포일"]*100).round(1); tt["점포일당"]=(tt["판매량"]/tt["점포일"]).round(2); print(tt)
 sec("요일"); w = s.groupby("요일").agg(판매=("수량","sum"), 일수=("일자","nunique")); w["일평균"]=(w["판매"]/w["일수"]).round(1); print(w)
 sec("시간대 월별 비중(%)"); h = s[(s["시"]>=9)&(s["시"]<=19)].pivot_table(index="시", columns="월", values="수량", aggfunc="sum", fill_value=0); print((h/h.sum()*100).round(1))
 sec("점포구분 월별 비중"); x = s.pivot_table(index="월", columns="점포구분", values="수량", aggfunc="sum", fill_value=0); print(x); print((x.div(x.sum(1), axis=0)*100).round(1))

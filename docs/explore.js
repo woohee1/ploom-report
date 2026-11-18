@@ -59,8 +59,8 @@
   // ---------- 집계 ----------
   function tdStats(td, salesRows) {
     // 활동 기록이 있으면 팀·일 기준, 없으면 판매 팀·일 기준
-    if (td.length) { const z = td.filter(r => +r.판매 === 0).length; return { 활동팀일: td.length, 무판매팀일: z, 무판매율: r2(z / td.length * 100), 팀일평균: r2(sum(td, r => r.판매) / td.length), 평균활동시간: r2(sum(td.filter(r => r.활동시간 != null), r => r.활동시간) / Math.max(1, td.filter(r => r.활동시간 != null).length)) }; }
-    const n = uniq(salesRows, r => r.팀일); return { 활동팀일: n, 무판매팀일: null, 무판매율: null, 팀일평균: n ? r2(sum(salesRows, r => r.수량) / n) : null, 평균활동시간: null };
+    if (td.length) { const z = td.filter(r => +r.판매 === 0).length; return { 활동팀일: td.length, 미판매팀일: z, 미판매율: r2(z / td.length * 100), 팀일평균: r2(sum(td, r => r.판매) / td.length), 평균활동시간: r2(sum(td.filter(r => r.활동시간 != null), r => r.활동시간) / Math.max(1, td.filter(r => r.활동시간 != null).length)) }; }
+    const n = uniq(salesRows, r => r.팀일); return { 활동팀일: n, 미판매팀일: null, 미판매율: null, 팀일평균: n ? r2(sum(salesRows, r => r.수량) / n) : null, 평균활동시간: null };
   }
   function compute() {
     const { R, TD, AC, Rn, TDn, ACn } = filtered();
@@ -97,7 +97,7 @@
     // 시트 달(11월 상세·한눈에 보기 11월 항목)
     const q = sum(Rn, r => r.수량), ts = tdStats(TDn, Rn);
     const rf = Rn.filter(r => r.리필구매 != null);
-    out.summary = [{ 판매대수: q, 제출건수: Rn.length, 운영일수: uniq(Rn, r => r.일자), 판매팀수: uniq(Rn, r => r.팀), 활동팀일: ts.활동팀일, 무판매팀일: ts.무판매팀일, 무판매율: ts.무판매율, 팀일평균: ts.팀일평균, 판매점포수: uniq(Rn.filter(r => r.점포코드), r => r.점포코드), 스타벅스: sum(Rn, r => r.스타벅스), 리필스틱동반율: rf.length ? r2(rf.filter(r => r.리필구매 === 1).length / rf.length * 100) : null }];
+    out.summary = [{ 판매대수: q, 제출건수: Rn.length, 운영일수: uniq(Rn, r => r.일자), 판매팀수: uniq(Rn, r => r.팀), 활동팀일: ts.활동팀일, 미판매팀일: ts.미판매팀일, 미판매율: ts.미판매율, 팀일평균: ts.팀일평균, 판매점포수: uniq(Rn.filter(r => r.점포코드), r => r.점포코드), 스타벅스: sum(Rn, r => r.스타벅스), 리필스틱동반율: rf.length ? r2(rf.filter(r => r.리필구매 === 1).length / rf.length * 100) : null }];
     out.daily = [...group(Rn, r => r.일자)].sort((a, b) => a[0] < b[0] ? -1 : 1).map(([d, g]) => { const td = TDn.filter(r => r.일자 === d); const o = { 일자: d, 요일: g[0].요일, 판매: sum(g, r => r.수량), 건수: g.length, 판매팀수: uniq(g, r => r.팀), 활동팀일: td.length || uniq(g, r => r.팀) }; AG.forEach(a => o[a] = sum(g.filter(r => r.인력사 === a), r => r.수량)); o.팀일평균 = r2(o.판매 / Math.max(1, o.활동팀일)); return o; });
     out.agency = AG.map(a => { const g = Rn.filter(r => r.인력사 === a), td = TDn.filter(r => r.인력사 === a); if (!g.length && !td.length) return null; const s = tdStats(td, g); return Object.assign({ 인력사: a, 판매: td.length ? sum(td, r => r.판매) : sum(g, r => r.수량), 팀수: uniq(g, r => r.팀) }, s); }).filter(Boolean).sort((a, b) => b.판매 - a.판매);
     if (TDn.length) out.sv = [...group(TDn.filter(r => r.SV), r => r.인력사 + '|' + r.SV)].map(([k, td]) => { const s = tdStats(td, []); return Object.assign({ 인력사: td[0].인력사, SV: td[0].SV, 판매: sum(td, r => r.판매), 팀수: uniq(td, r => r.팀) }, s); }).sort((a, b) => b.팀일평균 - a.팀일평균);
@@ -195,7 +195,7 @@
           <div><div class="k">판매</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="판매" data-row="0">—</span><span class="u">대</span></div></div>
           <div><div class="k">활동 일수</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="활동일수" data-row="0">—</span><span class="u">일</span></div></div>
           <div><div class="k">하루 평균</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="일평균" data-row="0" data-fmt=".2f">—</span><span class="u">대</span></div></div>
-          <div><div class="k">무판매 일</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="무판매일" data-row="0">—</span><span class="u">일</span></div></div>
+          <div><div class="k">미판매 일</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="미판매일" data-row="0">—</span><span class="u">일</span></div></div>
           <div><div class="k">판매 점포</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="판매점포수" data-row="0">—</span><span class="u">곳</span></div></div>
           <div><div class="k">점포 이동</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="이동" data-row="0">—</span><span class="u">회</span></div></div>
           <div><div class="k">평균 활동 시간</div><div class="v"><span data-draw="num" data-source="x_team_sum" data-field="평균활동시간" data-row="0" data-fmt=".1f">—</span><span class="u">시간</span></div></div>
@@ -273,7 +273,7 @@
       const t = +key, rows = R.filter(r => +r.팀 === t), td = TD.filter(r => +r.팀 === t);
       const info = td[0] || rows[0] || {}; const days = new Set([...td.map(r => r.일자), ...rows.map(r => r.일자)]).size;
       $('team-title').textContent = t + '팀'; $('team-sub').textContent = [info.인력사, info.SV ? 'SV ' + info.SV : '', t >= 900 ? '야간' : ''].filter(Boolean).join(' · ');
-      dash.set('x_team_sum', [{ 판매: sum(rows, r => r.수량), 활동일수: days, 일평균: r2(sum(rows, r => r.수량) / Math.max(1, days)), 무판매일: td.length ? td.filter(r => +r.판매 === 0).length : null, 판매점포수: uniq(rows.filter(r => r.점포코드), r => r.점포코드), 이동: td.length ? sum(td, r => r.이동) : null, 평균활동시간: tdStats(td, rows).평균활동시간 }]);
+      dash.set('x_team_sum', [{ 판매: sum(rows, r => r.수량), 활동일수: days, 일평균: r2(sum(rows, r => r.수량) / Math.max(1, days)), 미판매일: td.length ? td.filter(r => +r.판매 === 0).length : null, 판매점포수: uniq(rows.filter(r => r.점포코드), r => r.점포코드), 이동: td.length ? sum(td, r => r.이동) : null, 평균활동시간: tdStats(td, rows).평균활동시간 }]);
       dash.set('x_team_daily', dailyOf(rows)); dash.set('x_team_hourly', hourly(rows)); dash.set('x_team_color', colorOf(rows)); dash.set('x_team_customer', custOf(rows)); dash.set('x_team_extra', extras(rows));
       dash.set('x_team_days', td.slice().sort((a, b) => a.일자 < b.일자 ? 1 : -1).map(r => Object.assign({ 요일: wday(r.일자) }, r)));
       dash.set('x_team_stores', [...group(rows.filter(r => r.점포코드), r => r.점포코드)].map(([k, g]) => ({ 점포코드: k, 점포명: g[0].점포명, 브랜드: g[0].브랜드, 구분: g[0].구분, 시군구: g[0].시군구, 판매: sum(g, r => r.수량), 판매일수: uniq(g, r => r.일자), 일당: r2(sum(g, r => r.수량) / uniq(g, r => r.일자)) })).sort((a, b) => b.판매 - a.판매));

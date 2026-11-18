@@ -28,8 +28,8 @@ def save(name, df, inp):
 # 1 요약
 tot = pd.DataFrame([{
     "판매대수": int(s["수량"].sum()), "제출건수": len(s), "운영일수": int(s["일자"].nunique()),
-    "판매팀수": int(s["팀"].nunique()), "활동팀일": len(oa), "무판매팀일": int((oa["판매"]==0).sum()),
-    "무판매율": float((oa["판매"]==0).mean()*100), "팀일평균": float(oa["판매"].mean()),
+    "판매팀수": int(s["팀"].nunique()), "활동팀일": len(oa), "미판매팀일": int((oa["판매"]==0).sum()),
+    "미판매율": float((oa["판매"]==0).mean()*100), "팀일평균": float(oa["판매"].mean()),
     "판매점포수": int(s["점포코드"].nunique()), "스타벅스": int(s["스타벅스"].sum()),
     "기간시작": s["일자"].min(), "기간끝": s["일자"].max(),
     "리필스틱동반율": float((s["리필스틱 구매 여부"]=="구매").mean()*100),
@@ -46,13 +46,13 @@ d = d.merge(piv, on="일자", how="left"); d["팀일평균"] = d["판매"]/d["�
 save("daily", d, "sales_merged.csv, team_day.csv")
 
 # 3 인력사
-g = oa.groupby("인력사").agg(활동팀일=("판매","size"), 판매=("판매","sum"), 팀일평균=("판매","mean"), 무판매율=("판매", lambda x:(x==0).mean()*100), 평균활동시간=("활동시간h","mean")).reset_index()
+g = oa.groupby("인력사").agg(활동팀일=("판매","size"), 판매=("판매","sum"), 팀일평균=("판매","mean"), 미판매율=("판매", lambda x:(x==0).mean()*100), 평균활동시간=("활동시간h","mean")).reset_index()
 g["판매"] = g["판매"].astype(int); g["팀수"] = g["인력사"].map(s.groupby("인력사")["팀"].nunique())
 g["배정팀수"] = g["인력사"].map({"후킷":30, "토마스컴퍼니":33, "비욘드":13})
 save("agency", g.sort_values("판매", ascending=False), "team_day.csv")
 
 # 4 SV
-g = oa.groupby(["인력사","SV"]).agg(활동팀일=("판매","size"), 판매=("판매","sum"), 팀일평균=("판매","mean"), 무판매율=("판매", lambda x:(x==0).mean()*100), 팀수=("팀","nunique")).reset_index()
+g = oa.groupby(["인력사","SV"]).agg(활동팀일=("판매","size"), 판매=("판매","sum"), 팀일평균=("판매","mean"), 미판매율=("판매", lambda x:(x==0).mean()*100), 팀수=("팀","nunique")).reset_index()
 g["판매"] = g["판매"].astype(int); g["SV"] = g["SV"].fillna("미배정")
 save("sv", g.sort_values("팀일평균", ascending=False), "team_day.csv (SV = 팀배정 시트)")
 
@@ -89,11 +89,11 @@ save("insight", ins, "sales_merged.csv + store_insights.json")
 st = a[a["기록구분"]=="활동시작"].copy(); st["추천점포시작"] = st["시작점포 코드"].isin(recset)
 sd = s.groupby(["일자","팀"])["수량"].sum().reset_index()
 st = st.drop_duplicates(["일자","팀"]).merge(sd, on=["일자","팀"], how="left").fillna({"수량":0})
-g = st.groupby("추천점포시작").agg(팀일=("수량","size"), 판매=("수량","sum"), 팀일평균=("수량","mean"), 무판매율=("수량", lambda x:(x==0).mean()*100)).reset_index()
+g = st.groupby("추천점포시작").agg(팀일=("수량","size"), 판매=("수량","sum"), 팀일평균=("수량","mean"), 미판매율=("수량", lambda x:(x==0).mean()*100)).reset_index()
 g["구분"] = g["추천점포시작"].map({True:"추천 점포에서 시작", False:"추천 외 점포에서 시작"}); g["판매"] = g["판매"].astype(int)
 g2 = st.groupby(["인력사","추천점포시작"]).agg(팀일=("수량","size"), 팀일평균=("수량","mean")).reset_index()
 g2["구분"] = g2["추천점포시작"].map({True:"추천 점포에서 시작", False:"추천 외 점포에서 시작"})
-save("recommend", g[["구분","팀일","판매","팀일평균","무판매율"]], "activity_clean.csv 활동시작 + recommend_points.json + sales_merged.csv")
+save("recommend", g[["구분","팀일","판매","팀일평균","미판매율"]], "activity_clean.csv 활동시작 + recommend_points.json + sales_merged.csv")
 save("recommend_agency", g2[["인력사","구분","팀일","팀일평균"]], "activity_clean.csv 활동시작 + recommend_points.json + sales_merged.csv")
 cov = pd.DataFrame([{"추천점포수": int(rec["k"].nunique()), "판매발생추천점포": len(recset & set(s["점포코드"].dropna())), "추천시작비율": float(st["추천점포시작"].mean()*100)}])
 save("recommend_cov", cov, "recommend_points.json, sales_merged.csv, activity_clean.csv")
@@ -131,7 +131,7 @@ sp = s.groupby(["점포코드","일자"])["수량"].sum().reset_index(); sp["방
 g = sp.groupby("방문차수")["수량"].agg(점포일=("size"), 일평균=("mean")).reset_index(); g = g[g["방문차수"]<=5]
 save("revisit", g, "sales_merged.csv")
 
-# 16 무판매 팀 (활동기록은 있으나 판매 0)
+# 16 미판매 팀 (활동기록은 있으나 판매 0)
 z = oa.groupby(["인력사","팀"]).agg(활동일수=("판매","size"), 판매=("판매","sum")).reset_index(); z = z[(z["판매"]==0)&(z["활동일수"]>=4)]
 z["팀"] = z["팀"].astype(int); z["판매"] = z["판매"].astype(int)
 save("zero_teams", z.sort_values(["인력사","팀"]), "team_day.csv")

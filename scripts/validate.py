@@ -47,7 +47,7 @@ st = a[a["기록구분"] == "활동시작"].drop_duplicates(["일자","팀"]).co
 st["그룹"] = st["시작점포 코드"].map(grp).fillna("추천 외")
 sd = sm.groupby(["일자","팀"])["수량"].sum().reset_index()
 st = st.merge(sd, on=["일자","팀"], how="left").fillna({"수량": 0})
-print("\n== 11월 시작점포 그룹별 팀·일 평균 =="); g3 = st.groupby("그룹")["수량"].agg(팀일="size", 팀일평균="mean", 무판매율=lambda x: (x == 0).mean()*100).reset_index(); print(g3)
+print("\n== 11월 시작점포 그룹별 팀·일 평균 =="); g3 = st.groupby("그룹")["수량"].agg(팀일="size", 팀일평균="mean", 미판매율=lambda x: (x == 0).mean()*100).reset_index(); print(g3)
 save("rec_group_nov", g3, "activity_clean.csv 활동시작 + sales_merged.csv + recommend_points.json")
 # 팀 내 비교: 추천(실적+입지 합산) vs 추천 외, 둘 다 경험한 팀만
 st["추천"] = st["그룹"] != "추천 외"

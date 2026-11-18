@@ -69,7 +69,7 @@ rc["구분"] = rc["추천"].map({True:"추천 목록 점포", False:"그 외 점
 save("rec_month", order(rc[["월","구분","판매","점포수","점포당"]]), "long_sales_enriched.csv + recommend_points.json")
 
 # 방문점포(0 포함) 월별
-tt = t.groupby("월").agg(점포일=("점포코드","size"), 무판매점포일=("판매량", lambda v:int((v==0).sum())), 판매량=("판매량","sum")).reset_index(); tt["무판매율"] = tt["무판매점포일"]/tt["점포일"]*100; tt["점포일당"] = tt["판매량"]/tt["점포일"]
+tt = t.groupby("월").agg(점포일=("점포코드","size"), 미판매점포일=("판매량", lambda v:int((v==0).sum())), 판매량=("판매량","sum")).reset_index(); tt["미판매율"] = tt["미판매점포일"]/tt["점포일"]*100; tt["점포일당"] = tt["판매량"]/tt["점포일"]
 tt = tt[tt["점포일"]>=500]; tt["판매량"] = tt["판매량"].astype(int)
 save("storeday_month", order(tt), "long_storeday.csv (엑셀의 '프로그램 진행 완료 점포'/'점포별수량' 시트)")
 

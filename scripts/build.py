@@ -10,7 +10,8 @@ D = _os.path.join(ROOT, "work", "data")
 OUT = os.path.join(D, "out"); os.makedirs(OUT, exist_ok=True)
 
 def load_parts(stem):
-    files = sorted(glob.glob(os.path.join(D, stem + "*.json")))
+    # work/data/<stem>*.json (이번 달 시트) + ref/ops_YYYY-MM/<stem>.json (지난달 운영 시트 보관본)
+    files = sorted(glob.glob(os.path.join(D, stem + "*.json"))) + sorted(glob.glob(os.path.join(ROOT, "ref", "ops_*", stem + ".json")))
     header, rows = None, []
     for f in files:
         j = json.load(open(f, encoding="utf-8"))
@@ -40,6 +41,17 @@ def kdate(s):
 tm = pd.DataFrame(json.load(open(os.path.join(D, "team_map.json"), encoding="utf-8")), columns=["인력사","구분","SV","팀"])
 tm["팀"] = tm["팀"].astype(int)
 team_agency = dict(zip(tm["팀"], tm["인력사"])); team_sv = dict(zip(tm["팀"], tm["SV"]))
+# 지난달 팀배정 (ref/ops_YYYY-MM/team_map.json) → 그 달 날짜에는 그 배정표의 SV 사용
+month_sv = {}
+for f in sorted(glob.glob(os.path.join(ROOT, "ref", "ops_*", "team_map.json"))):
+    mo = os.path.basename(os.path.dirname(f))[4:]
+    rows = json.load(open(f, encoding="utf-8"))
+    month_sv[mo] = {int(r[3]): r[2] for r in rows if str(r[3]).strip().isdigit()}
+def sv_of(team, day):
+    if pd.isna(team): return None
+    mp = month_sv.get(str(day)[:7])
+    if mp is not None and int(team) in mp: return mp[int(team)]
+    return team_sv.get(int(team))
 
 def agency_of(t):
     if pd.isna(t): return None
@@ -81,7 +93,7 @@ s["팀"] = pd.to_numeric(tp.str[0].str.strip(), errors="coerce")
 s["에이전트"] = tp.str[1].str.strip()
 s["수량"] = pd.to_numeric(s["판매수량"], errors="coerce").fillna(0)
 s["스타벅스"] = pd.to_numeric(s["스타벅스 기프트카드 제공 수량"], errors="coerce").fillna(0)
-s["인력사"] = s["팀"].map(agency_of); s["SV"] = s["팀"].map(team_sv)
+s["인력사"] = s["팀"].map(agency_of); s["SV"] = [sv_of(tm_, d_) for tm_, d_ in zip(s["팀"], s["일자"])]
 s["야간"] = s["팀"] >= 900
 s["고유ID_base"] = s["고유 ID"].astype(str).str.extract(r"^([0-9a-f\-]{36})")[0]
 s = s.rename(columns={"점포 코드":"점포코드"})
@@ -121,7 +133,7 @@ def summ(df):
 ops = g.apply(summ).reset_index()
 sales_td = s.groupby(["일자","팀"]).agg(판매=("수량","sum"), 건수=("수량","size"), 스타벅스=("스타벅스","sum"), 판매점포수=("점포코드","nunique")).reset_index()
 ops = ops.merge(sales_td, on=["일자","팀"], how="outer")
-ops["인력사"] = ops["인력사"].fillna(ops["팀"].map(agency_of)); ops["SV"] = ops["팀"].map(team_sv)
+ops["인력사"] = ops["인력사"].fillna(ops["팀"].map(agency_of)); ops["SV"] = [sv_of(tm_, d_) for tm_, d_ in zip(ops["팀"], ops["일자"])]
 ops["판매"] = ops["판매"].fillna(0)
 ops["시간당판매"] = ops["판매"] / ops["활동시간h"]
 ops.to_csv(os.path.join(OUT, "team_day.csv"), index=False, encoding="utf-8-sig")

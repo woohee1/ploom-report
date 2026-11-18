@@ -5,7 +5,7 @@
 //   2) 배포 > 새 배포 > 유형 "웹 앱", 실행 계정 "나", 액세스 권한 "모든 사용자" 로 배포
 //   3) 코드를 바꾼 뒤에는 배포 > 배포 관리 > 연필 > 버전 "새 버전" > 배포 (주소는 그대로 유지됨)
 // 호출:
-//   전체 자료 내려받기:  GET <URL>?key=<KEY>[&sales=12월 세일즈 제출]
+//   전체 자료 내려받기:  GET <URL>?key=<KEY>[&sales=12월 세일즈 제출][&ops_id=<다른 운영 시트 ID>][&sales_id=<다른 통합본 ID>]
 //   오늘 현황 집계:      GET <URL>?view=today&key=<ADMIN_KEY 또는 KEY>[&date=2026-11-18]
 
 const SALES_ID = '1AzT7nN44RwiV4Tef_LgmwIFZw4EVVx1vClcVrBMvrEg'; // 통합본
@@ -22,8 +22,8 @@ function doGet(e) {
     return json(todayView(p.date));
   }
   if (!key || p.key !== key) return text('forbidden');
-  const sales = SpreadsheetApp.openById(SALES_ID);
-  const ops = SpreadsheetApp.openById(OPS_ID);
+  const sales = SpreadsheetApp.openById(p.sales_id || SALES_ID);
+  const ops = SpreadsheetApp.openById(p.ops_id || OPS_ID);   // ops_id 로 지난달 운영 시트도 읽을 수 있음
   const salesTab = (p.sales || '11월 세일즈 제출');
   return json({
     sales_tab: salesTab,
@@ -120,7 +120,7 @@ function todayView(date) {
     let s = '정상';
     if (!o.활동시작 && o.판매 === 0) s = '활동 없음';
     else if (o.활동종료) s = '종료';
-    else if (o.판매 === 0 && (!isToday || nowHM >= '12:00')) s = '무판매';
+    else if (o.판매 === 0 && (!isToday || nowHM >= '12:00')) s = '미판매';
     o.상태 = s; delete o._last; return o;
   }).sort((a, b) => (a.인력사 < b.인력사 ? -1 : a.인력사 > b.인력사 ? 1 : a.팀 - b.팀));
   const hours = []; let acc = 0;
@@ -129,7 +129,7 @@ function todayView(date) {
   return {
     date: date, as_of: Utilities.formatDate(now, TZ, 'yyyy-MM-dd HH:mm'), sales_tab: month + '월 세일즈 제출',
     summary: [{ 판매: total, 활동팀: list.filter(o => o.활동시작).length, 판매팀: list.filter(o => o.판매 > 0).length,
-      무판매팀: list.filter(o => o.상태 === '무판매').length, 활동없음팀: list.filter(o => o.상태 === '활동 없음').length, SV개입: svRows.length }],
+      미판매팀: list.filter(o => o.상태 === '미판매').length, 활동없음팀: list.filter(o => o.상태 === '활동 없음').length, SV개입: svRows.length }],
     hours: hours,
     agency: Object.keys(byAgency).map(k => ({ 인력사: k, 판매: byAgency[k] })).sort((a, b) => b.판매 - a.판매),
     teams: list, sv: svRows, recent: recent.slice(0, 15)
