@@ -10,53 +10,17 @@
 """
 import os, sys, json, glob
 import pandas as pd
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "work", "data", "out"); DST = os.path.join(ROOT, "docs", "data")
 os.makedirs(DST, exist_ok=True)
-COLS = ["일자","시","팀","인력사","SV","점포코드","점포명","브랜드","구분","시도","시군구","색상","수량","성별","연령대","사용제품","리필구매","스틱","회원가입","카카오","스타벅스","경로"]
-DICT = {"인력사","SV","점포코드","점포명","브랜드","구분","시도","시군구","색상","성별","연령대","사용제품","스틱","경로","일자"}
-
-def done(v):  # "회원가입 완료"/"완료" → 1, "미완료" → 0, 그 외 None
-    s = str(v) if pd.notna(v) else ""
-    if not s: return None
-    if "미완료" in s: return 0
-    return 1 if "완료" in s else None
-
-def first(v):
-    if pd.isna(v): return None
-    return str(v).split(",")[0].strip() or None
-
-def pack(df, cols=COLS):
-    df = df.reindex(columns=cols)
-    dicts, out = {}, []
-    enc = {}
-    for c in cols:
-        if c in DICT:
-            vals = sorted(set(str(x) for x in df[c].dropna() if str(x).strip()))
-            dicts[c] = vals; enc[c] = {v: i for i, v in enumerate(vals)}
-    for r in df.itertuples(index=False):
-        row = []
-        for c, v in zip(cols, r):
-            if c in enc:
-                row.append(enc[c].get(str(v)) if pd.notna(v) and str(v).strip() else None)
-            elif isinstance(v, float):
-                row.append(None if pd.isna(v) else (int(v) if v == int(v) else round(v, 2)))
-            else:
-                row.append(None if (v is None or (isinstance(v, str) and not v)) else v)
-        out.append(row)
-    return {"cols": cols, "dict": dicts, "rows": out}
-
-def save(name, obj):
-    p = os.path.join(DST, name)
-    json.dump(obj, open(p, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-    print(name, len(obj.get("rows", obj)), "행,", os.path.getsize(p) // 1024, "KB")
-
+from export_rows_pack import COLS, DICT, done, first, pack, save, brand
 # ---- 시트 달 (sales_merged.csv) ----
 s = pd.read_csv(os.path.join(D, "sales_merged.csv"), low_memory=False)
 sheet_months = sorted(set(str(x)[:7] for x in s["일자"].dropna()))
 m = pd.DataFrame({
     "일자": s["일자"], "시": pd.to_numeric(s["시"], errors="coerce"), "팀": pd.to_numeric(s["팀"], errors="coerce"),
-    "인력사": s["인력사"], "SV": s["SV"], "점포코드": s["점포코드"], "점포명": s["점포명"], "브랜드": s["점포 타입"], "구분": s["점포 구분"],
+    "인력사": s["인력사"], "SV": s["SV"], "점포코드": s["점포코드"], "점포명": s["점포명"], "브랜드": s["점포 타입"].map(brand), "구분": s["점포 구분"],
     "시도": s["시도"].replace({"경기도":"경기","서울시":"서울"}), "시군구": s["시군구"], "색상": s["디바이스 색상"], "수량": pd.to_numeric(s["수량"], errors="coerce").fillna(0),
     "성별": s["구매자 성별"], "연령대": s["구매자 연령대"], "사용제품": s["구매자 사용 제품"].map(first),
     "리필구매": s["리필스틱 구매 여부"].map(lambda v: None if pd.isna(v) else (1 if str(v).strip() == "구매" else 0)),
@@ -84,7 +48,7 @@ if (not os.path.exists(longp) or "--long" in sys.argv) and os.path.exists(lsrc):
         return month_sv.get(day[:7], {}).get(int(team))
     lg = pd.DataFrame({
         "일자": L["일자"], "시": pd.to_numeric(L["시"], errors="coerce"), "팀": pd.to_numeric(L["팀"], errors="coerce"),
-        "인력사": L["인력사"], "SV": [sv_long(d, t) for d, t in zip(L["일자"], pd.to_numeric(L["팀"], errors="coerce"))], "점포코드": L["점포코드"], "점포명": L["점포명"], "브랜드": L["점포타입"], "구분": L["점포구분"],
+        "인력사": L["인력사"], "SV": [sv_long(d, t) for d, t in zip(L["일자"], pd.to_numeric(L["팀"], errors="coerce"))], "점포코드": L["점포코드"], "점포명": L["점포명"], "브랜드": L["점포타입"].map(brand), "구분": L["점포구분"],
         "시도": L["시도"], "시군구": L["시군구"], "색상": L["색상"], "수량": pd.to_numeric(L["수량"], errors="coerce").fillna(0),
         "성별": L["성별"], "연령대": L["연령대"], "사용제품": L["사용제품"].map(first),
         "리필구매": L.apply(lambda r: None if pd.isna(r["리필스틱"]) else (1 if bool(r["리필구매"]) else 0), axis=1),

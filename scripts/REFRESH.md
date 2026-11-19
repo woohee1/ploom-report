@@ -37,3 +37,7 @@ python scripts/publish.py "$(cat work/data/fetched_at.txt)"
 - 4~9월 옛 엑셀 파일(팀배정 탭만 쓸 수 있음): `py -3 scripts/import_ops_xlsx.py <엑셀 파일> <YYYY-MM>` → team_map.json 만 생성.
   4월 파일은 수퍼바이저 이름이 자리표시(SV1~SV5)라 쓰지 않는다.
 - build.py·export_rows.py 가 이 폴더를 함께 읽어 그 달 판매에 수퍼바이저를 붙인다. 보관본을 바꾼 뒤에는 `py -3 scripts/export_rows.py --long` 으로 장기 자료를 다시 만든다.
+
+## 작년 비교 자료 (docs/data/rows_prev.json)
+- 작년 에이전트 세일즈 폼즈 엑셀(2024.12~2025.12)을 `py -3 scripts/import_last_year.py "<폼즈 엑셀 폴더>"` 로 올해 건 단위 자료와 같은 열로 바꿔 고정 파일로 둔다. 자동 갱신과 무관.
+- 사이트의 "작년 비교" 메뉴(docs/explore3.js)가 이 파일을 읽어 올해 자료와 같은 달끼리 비교한다. 작년 파일이 더 생기면 같은 폴더에 넣고 다시 실행한다.
