@@ -15,6 +15,12 @@
     // 월별 흐름: 주별, 월별 활동 지표
     dash.set('x_weekly', [...group(R, r => weekStart(r.일자))].sort((a, b) => a[0] < b[0] ? -1 : 1).map(([w, g]) => ({ 주: w, 판매: sum(g, r => r.수량), 판매팀일: uniq(g, r => r.팀일), 팀일당: r2(sum(g, r => r.수량) / Math.max(1, uniq(g, r => r.팀일))), 일수: uniq(g, r => r.일자) })));
     dash.set('x_month_ops', [...group(TD, r => r.월)].sort((a, b) => parseInt(a[0]) - parseInt(b[0])).map(([m, g]) => { const h = g.filter(r => r.활동시간 != null); return { 월: m, 활동팀일: g.length, 판매: sum(g, r => r.판매), 팀일평균: r2(sum(g, r => r.판매) / g.length), 미판매율: r2(g.filter(r => +r.판매 === 0).length / g.length * 100), 평균활동시간: h.length ? r2(sum(h, r => r.활동시간) / h.length) : null, 팀일당이동: r2(sum(g, r => r.이동) / g.length), 팀수: uniq(g, r => r.팀) }; }));
+    // 한눈에 보기: 누적 지표
+    const rf = R.filter(r => r.리필구매 != null), rj = R.filter(r => r.회원가입 != null);
+    dash.set('ov_summary', [{ 판매: sum(R, r => r.수량), 일수: uniq(R, r => r.일자), 일평균: R.length ? sum(R, r => r.수량) / uniq(R, r => r.일자) : null, 리필동반율: rf.length ? r2(rf.filter(r => r.리필구매 === 1).length / rf.length * 100) : null, 회원가입률: rj.length ? r2(rj.filter(r => r.회원가입 === 1).length / rj.length * 100) : null }]);
+    const sh = (id, key, keyf, top) => { let a = [...group(R.filter(r => keyf(r)), keyf)].map(([k, g]) => ({ [key]: k, 판매: sum(g, r => r.수량) })).sort((x, y) => y.판매 - x.판매); if (top && a.length > top) a = a.slice(0, top - 1).concat([{ [key]: '기타', 판매: sum(a.slice(top - 1), r => r.판매) }]); dash.set(id, a); };
+    sh('ov_agency', '인력사', r => r.인력사); sh('ov_color', '색상', r => r.색상, 5); sh('ov_product', '사용제품', r => r.사용제품, 5);
+    dash.set('ov_hourly', [...group(R.filter(r => r.시 != null && r.시 >= 9 && r.시 <= 19), r => +r.시)].sort((a, b) => a[0] - b[0]).map(([h, g]) => ({ 시간: h, 판매: sum(g, r => r.수량) })));
     // 점포
     const stores = [...group(R.filter(r => r.점포코드), r => r.점포코드)].map(([k, g]) => { const d = g.map(r => r.일자).sort(); return { 점포코드: k, 점포명: g[0].점포명, 브랜드: g[0].브랜드, 구분: g[0].구분, 시군구: g[0].시군구, 판매: sum(g, r => r.수량), 판매일수: uniq(g, r => r.일자), 팀수: uniq(g, r => r.팀), 일당: r2(sum(g, r => r.수량) / uniq(g, r => r.일자)), 첫판매: d[0], 마지막판매: d[d.length - 1] }; }).sort((a, b) => b.판매 - a.판매);
     X.storesAll = stores; storeSearch();
@@ -72,7 +78,7 @@
     });
     const s = dash.data('summary'); const sr = s.status === 'ok' && s.data[0];
     const h2 = $('nov-intro'); if (h2 && sr) h2.textContent = label + ' 상세 (' + (sr.기간시작 || '') + ' ~ ' + (sr.기간끝 || '') + ', 활동 기록 포함)';
-    const small = document.querySelector('#p-overview .hero-stats .k small'); if (small && sr && sr.기간시작) small.textContent = sr.기간시작.slice(5).replace('-', '/') + '~' + sr.기간끝.slice(5).replace('-', '/');
+    const sa = dash.data('summary_all'); const ar = sa.status === 'ok' && sa.data[0]; const small = document.querySelector('#p-overview .hero-stats .k small'); if (small && ar && ar.기간시작) small.textContent = ar.기간시작.slice(5).replace('-', '/') + '~' + ar.기간끝.slice(5).replace('-', '/');
     const nav = document.querySelector('#tabs a[data-panel="p-nov-intro"]'); if (nav) { nav.dataset.title = label + ' 상세'; nav.title = nav.dataset.title; nav.querySelector('span').textContent = nav.dataset.title; if (nav.classList.contains('on')) $('page-title').textContent = nav.dataset.title; }
   }
 
