@@ -155,7 +155,7 @@
       <span class="xf-chips" id="xf-chips"></span>`;
     const head = document.querySelector('main.pl .head'); head.insertAdjacentElement('afterend', bar);
     const opt = (sel, vals) => vals.forEach(v => { const o = document.createElement('option'); o.textContent = v; sel.appendChild(o); });
-    opt($('xf-sv'), [...new Set(X.td.map(r => r.SV).filter(Boolean))].sort());
+    opt($('xf-sv'), [...new Set(X.td.map(r => r.SV).concat(X.rows.map(r => r.SV)).filter(Boolean))].sort());
     opt($('xf-brand'), [...new Set(X.rows.map(r => r.브랜드).filter(Boolean))].sort());
     opt($('xf-kind'), [...new Set(X.rows.map(r => r.구분).filter(Boolean))].sort());
     const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);

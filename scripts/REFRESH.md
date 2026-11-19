@@ -31,3 +31,9 @@ python scripts/publish.py "$(cat work/data/fetched_at.txt)"
 - `docs/data/summary.json`의 판매대수가 0이 아니고, 직전 커밋 값보다 줄지 않았는지 확인한다. 줄었으면 중단하고 보고한다.
 - `git add docs/data && git commit -m "자료 갱신 YYYY-MM-DD" && git push`
 - work/ 와 ref/ 는 커밋하지 않는다(work/는 .gitignore에 있음).
+
+## 지난달 운영 자료 보관본 (ref/ops_YYYY-MM/)
+- 10월 이후(개편본 형식, 활동이동로그·SV개입_기록 탭 있음): `py -3 scripts/fetch_ops_month.py <시트 ID> <YYYY-MM>` → activity·sv·team_map.json
+- 4~9월 옛 엑셀 파일(팀배정 탭만 쓸 수 있음): `py -3 scripts/import_ops_xlsx.py <엑셀 파일> <YYYY-MM>` → team_map.json 만 생성.
+  4월 파일은 수퍼바이저 이름이 자리표시(SV1~SV5)라 쓰지 않는다.
+- build.py·export_rows.py 가 이 폴더를 함께 읽어 그 달 판매에 수퍼바이저를 붙인다. 보관본을 바꾼 뒤에는 `py -3 scripts/export_rows.py --long` 으로 장기 자료를 다시 만든다.

@@ -74,9 +74,17 @@ longp = os.path.join(DST, "rows_long.json"); lsrc = os.path.join(D, "long_sales_
 if (not os.path.exists(longp) or "--long" in sys.argv) and os.path.exists(lsrc):
     L = pd.read_csv(lsrc, low_memory=False)
     L = L[L["일자"].str[:7] < min(sheet_months)]
+    # 달별 팀배정 보관본(ref/ops_YYYY-MM/team_map.json)으로 수퍼바이저 채움
+    month_sv = {}
+    for f in sorted(glob.glob(os.path.join(ROOT, "ref", "ops_*", "team_map.json"))):
+        mo = os.path.basename(os.path.dirname(f))[4:]
+        month_sv[mo] = {int(r[3]): r[2] for r in json.load(open(f, encoding="utf-8")) if str(r[3]).strip().isdigit()}
+    def sv_long(day, team):
+        if pd.isna(team) or not isinstance(day, str): return None
+        return month_sv.get(day[:7], {}).get(int(team))
     lg = pd.DataFrame({
         "일자": L["일자"], "시": pd.to_numeric(L["시"], errors="coerce"), "팀": pd.to_numeric(L["팀"], errors="coerce"),
-        "인력사": L["인력사"], "SV": None, "점포코드": L["점포코드"], "점포명": L["점포명"], "브랜드": L["점포타입"], "구분": L["점포구분"],
+        "인력사": L["인력사"], "SV": [sv_long(d, t) for d, t in zip(L["일자"], pd.to_numeric(L["팀"], errors="coerce"))], "점포코드": L["점포코드"], "점포명": L["점포명"], "브랜드": L["점포타입"], "구분": L["점포구분"],
         "시도": L["시도"], "시군구": L["시군구"], "색상": L["색상"], "수량": pd.to_numeric(L["수량"], errors="coerce").fillna(0),
         "성별": L["성별"], "연령대": L["연령대"], "사용제품": L["사용제품"].map(first),
         "리필구매": L.apply(lambda r: None if pd.isna(r["리필스틱"]) else (1 if bool(r["리필구매"]) else 0), axis=1),
