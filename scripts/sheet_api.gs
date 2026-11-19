@@ -86,7 +86,7 @@ function todayView(date) {
   const sales = SpreadsheetApp.openById(SALES_ID);
   const ops = SpreadsheetApp.openById(OPS_ID);
   const sTab = sales.getSheetByName(month + '월 세일즈 제출');
-  const sb = sTab ? block(sTab, 20) : { rows: [] };
+  const sb = sTab ? block(sTab, 20, 1500) : { rows: [] };   // 최근 1,500행만 (하루 최대 300건 안팎이라 며칠치면 충분)
   const ab = block(ops.getSheetByName('활동이동로그'), 22, 2500) || { rows: [] };
   const vb = block(ops.getSheetByName('SV개입_기록'), 13, 500) || { rows: [] };
   const tm = teamMap(ops.getSheetByName('팀배정')) || [];

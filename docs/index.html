@@ -757,7 +757,8 @@ async function liveLoad(force) {
   const date = $('live-date').value || kstToday();
   // 기억해 둔 마지막 결과가 있으면 먼저 보여 주고 뒤에서 새로 읽음
   if (!live.data) { const c = liveCached(date); if (c) liveShow(c); }
-  if (live.data) { $('live-asof').textContent = '시트에서 새로 읽는 중… (10~20초)'; }
+  const t0 = Date.now(); const tick = setInterval(() => { if (live.loading) $('live-asof').textContent = '시트에서 새로 읽는 중… ' + Math.round((Date.now() - t0) / 1000) + '초'; }, 1000);
+  if (live.data) { $('live-asof').textContent = '시트에서 새로 읽는 중…'; }
   else { $('gate').hidden = false; $('live').hidden = true; $('gate-form').hidden = true; $('gate-msg').textContent = '비밀번호를 확인하고 시트를 읽는 중입니다. 10~20초 걸립니다…'; }
   try {
     const ctl = new AbortController(); const tmo = setTimeout(() => ctl.abort(), 45000);
@@ -773,9 +774,9 @@ async function liveLoad(force) {
     if (!live.timer) live.timer = setInterval(() => liveLoad(), 5 * 60 * 1000);
   } catch (e) {
     console.error(e);
-    $('live-asof').textContent = (e && e.name === 'AbortError') ? '응답이 없습니다(45초). 잠시 후 새로고침하세요.' : '불러오지 못했습니다. 잠시 후 새로고침하세요.';
+    $('live-asof').textContent = (e && e.name === 'AbortError') ? '응답이 없습니다(45초). 시트가 느립니다. 새로고침을 다시 눌러 주세요.' : '불러오지 못했습니다. 잠시 후 새로고침하세요.';
     if (!live.data) liveGate('시트에 연결하지 못했습니다. 잠시 후 다시 시도하세요.');
-  } finally { live.loading = false; $('gate-form').hidden = false; }
+  } finally { clearInterval(tick); live.loading = false; $('gate-form').hidden = false; }
 }
 function liveShow(j) {
   live.data = j;
