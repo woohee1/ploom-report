@@ -14,14 +14,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "work", "data", "out"); DST = os.path.join(ROOT, "docs", "data")
 os.makedirs(DST, exist_ok=True)
-from export_rows_pack import COLS, DICT, done, first, pack, save, brand
+from export_rows_pack import COLS, DICT, done, first, pack, save, brand, sido
 # ---- 시트 달 (sales_merged.csv) ----
 s = pd.read_csv(os.path.join(D, "sales_merged.csv"), low_memory=False)
 sheet_months = sorted(set(str(x)[:7] for x in s["일자"].dropna()))
 m = pd.DataFrame({
     "일자": s["일자"], "시": pd.to_numeric(s["시"], errors="coerce"), "팀": pd.to_numeric(s["팀"], errors="coerce"),
     "인력사": s["인력사"], "SV": s["SV"], "점포코드": s["점포코드"], "점포명": s["점포명"], "브랜드": s["점포 타입"].map(brand), "구분": s["점포 구분"],
-    "시도": s["시도"].replace({"경기도":"경기","서울시":"서울"}), "시군구": s["시군구"], "색상": s["디바이스 색상"], "수량": pd.to_numeric(s["수량"], errors="coerce").fillna(0),
+    "시도": s["시도"].map(sido), "시군구": s["시군구"].where(s["시도"].map(sido).notna(), None), "색상": s["디바이스 색상"], "수량": pd.to_numeric(s["수량"], errors="coerce").fillna(0),
     "성별": s["구매자 성별"], "연령대": s["구매자 연령대"], "사용제품": s["구매자 사용 제품"].map(first),
     "리필구매": s["리필스틱 구매 여부"].map(lambda v: None if pd.isna(v) else (1 if str(v).strip() == "구매" else 0)),
     "스틱": s["리필스틱 종류"].map(lambda v: None if pd.isna(v) else str(v).split("(")[0].strip()),
@@ -49,7 +49,7 @@ if (not os.path.exists(longp) or "--long" in sys.argv) and os.path.exists(lsrc):
     lg = pd.DataFrame({
         "일자": L["일자"], "시": pd.to_numeric(L["시"], errors="coerce"), "팀": pd.to_numeric(L["팀"], errors="coerce"),
         "인력사": L["인력사"], "SV": [sv_long(d, t) for d, t in zip(L["일자"], pd.to_numeric(L["팀"], errors="coerce"))], "점포코드": L["점포코드"], "점포명": L["점포명"], "브랜드": L["점포타입"].map(brand), "구분": L["점포구분"],
-        "시도": L["시도"], "시군구": L["시군구"], "색상": L["색상"], "수량": pd.to_numeric(L["수량"], errors="coerce").fillna(0),
+        "시도": L["시도"].map(sido), "시군구": L["시군구"].where(L["시도"].map(sido).notna(), None), "색상": L["색상"], "수량": pd.to_numeric(L["수량"], errors="coerce").fillna(0),
         "성별": L["성별"], "연령대": L["연령대"], "사용제품": L["사용제품"].map(first),
         "리필구매": L.apply(lambda r: None if pd.isna(r["리필스틱"]) else (1 if bool(r["리필구매"]) else 0), axis=1),
         "스틱": None, "회원가입": L["회원가입"].map(done), "카카오": L["카카오"].map(done),

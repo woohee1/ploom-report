@@ -42,6 +42,12 @@
         <div class="tw"><table data-source="c_month"><thead><tr><th data-field="월">월</th><th class="n" data-field="올해판매">올해 판매</th><th class="n" data-field="작년판매">작년 판매</th><th class="n" data-field="증감률">증감 %</th><th class="n" data-field="올해일수">올해 영업일</th><th class="n" data-field="작년일수">작년 영업일</th><th class="n" data-field="올해일평균">올해 일평균</th><th class="n" data-field="작년일평균">작년 일평균</th><th class="n" data-field="올해점포">올해 점포</th><th class="n" data-field="작년점포">작년 점포</th><th class="n" data-field="올해팀일당">올해 팀·일당</th><th class="n" data-field="작년팀일당">작년 팀·일당</th></tr></thead>
         <tbody data-draw="tbl" data-cols="월,올해판매,작년판매,증감률,올해일수,작년일수,올해일평균,작년일평균,올해점포,작년점포,올해팀일당,작년팀일당" data-fmts=",,,+.1f,,,.1f,.1f,,,.2f,.2f"></tbody></table></div>
         <p class="muted">영업일은 판매 기록이 있는 날 수입니다. 머리글을 누르면 정렬됩니다.</p></div>
+      <h2>점포별 비교</h2>
+      <div class="card"><h3>점포별 올해·작년 판매 (같은 달끼리)</h3>
+        <div class="toolbar"><input type="search" id="cmp-store-q" placeholder="점포명, 지역, 브랜드, 코드로 찾기" style="max-width:360px"><span class="muted" id="cmp-store-count"></span></div>
+        <div class="tw"><table data-source="c_stores" data-row-key="점포코드"><thead><tr><th data-field="점포명">점포</th><th data-field="브랜드">브랜드</th><th data-field="시군구">지역</th><th class="n" data-field="올해">올해</th><th class="n" data-field="작년">작년</th><th class="n" data-field="증감률">증감 %</th><th class="n" data-field="올해일수">올해 판매일</th><th class="n" data-field="작년일수">작년 판매일</th><th class="n" data-field="올해일당">올해 일당</th><th class="n" data-field="작년일당">작년 일당</th></tr></thead>
+        <tbody data-draw="tbl" data-cols="점포명,브랜드,시군구,올해,작년,증감률,올해일수,작년일수,올해일당,작년일당" data-fmts=",,,,,+.1f,,,.2f,.2f"></tbody></table></div>
+        <p class="muted">점포 코드로 맞춘 점포만. 처음에는 양쪽 모두 판매가 있는 점포를 올해 판매 순으로 60곳 보여주고, 검색하면 한쪽만 판매한 점포도 나옵니다. 점포명을 누르면 점포 상세로 갑니다.</p></div>
       <h2>어디서 팔렸나</h2>
       <div class="grid2">
         ${share('c_brand', '브랜드 비중', '브랜드')}
@@ -101,15 +107,30 @@
     share('c_wday', r => r.요일, WD);
     share('c_color', r => r.색상); share('c_route', r => r.경로); share('c_gender', r => r.성별);
     share('c_age', r => r.연령대 == null ? null : /^[2-4]0대/.test(r.연령대) ? r.연령대 : '50대 이상', ['20대', '30대', '40대', '50대 이상']); share('c_product', r => r.사용제품);
+    const sa = group(Rb.filter(r => r.점포코드), r => r.점포코드), sb = group(Pb.filter(r => r.점포코드), r => r.점포코드);
+    STORES = [...new Set([...sa.keys(), ...sb.keys()])].map(k => { const g = sa.get(k) || [], h = sb.get(k) || []; const f = g[0] || h[0]; const o = { 점포코드: k, 점포명: f.점포명, 브랜드: f.브랜드, 시군구: (g[0] && g[0].시군구) || f.시군구, 올해: sum(g, r => r.수량), 작년: sum(h, r => r.수량), 올해일수: uniq(g, r => r.일자), 작년일수: uniq(h, r => r.일자) };
+      o.증감률 = (g.length && h.length) ? chg(o.올해, o.작년) : null; o.올해일당 = o.올해일수 ? r2(o.올해 / o.올해일수) : null; o.작년일당 = o.작년일수 ? r2(o.작년 / o.작년일수) : null; return o; }).sort((x, y) => y.올해 - x.올해 || y.작년 - x.작년);
+    const both = STORES.filter(o => o.올해 && o.작년).length;
+    const cnt = $('cmp-store-count'); if (cnt) cnt.dataset.base = '양쪽 모두 판매 ' + both + '곳 · 올해만 ' + STORES.filter(o => o.올해 && !o.작년).length + '곳 · 작년만 ' + STORES.filter(o => !o.올해 && o.작년).length + '곳';
+    storeSearch();
     const sg = group(Rb.filter(r => r.시군구), r => r.시군구), sgp = group(Pb.filter(r => r.시군구), r => r.시군구);
     dash.set('c_sgg', [...sg].map(([k, g]) => { const o = { 항목: k, 올해: sum(g, r => r.수량), 작년: sum(sgp.get(k) || [], r => r.수량) }; o.증감률 = chg(o.올해, o.작년); return o; }).sort((x, y) => y.올해 - x.올해).slice(0, 20));
     const rate = (g, f) => { const h = g.filter(r => f(r) != null); return h.length ? r1(h.filter(r => f(r) === 1).length / h.length * 100) : null; };
     dash.set('c_conv', [['회원가입 완료율', r => r.회원가입], ['카카오 채널 추가율', r => r.카카오]].map(([k, f]) => { const x = rate(Rb, f), y = rate(Pb, f); return { 항목: k, 올해: x, 작년: y, 차이: (x != null && y != null) ? r1(x - y) : null }; }));
   }
 
+  let STORES = [];
+  function storeSearch() {
+    const q = ($('cmp-store-q') ? $('cmp-store-q').value : '').trim().toLowerCase();
+    const list = q ? STORES.filter(o => [o.점포명, o.브랜드, o.시군구, o.점포코드].some(v => v && String(v).toLowerCase().includes(q))) : STORES.filter(o => o.올해 && o.작년);
+    dash.set('c_stores', list.slice(0, 60));
+    const cnt = $('cmp-store-count'); if (cnt) cnt.textContent = (q ? list.length + '곳 중 ' + Math.min(60, list.length) + '곳 표시 · ' : '') + (cnt.dataset.base || '');
+  }
+
   // ---------- 시작 ----------
   async function init() {
     build();
+    $('cmp-store-q').addEventListener('input', () => { storeSearch(); dash.render(); });
     try { PREV = decode(await (await fetch('data/rows_prev.json?v=' + Date.now())).json()); } catch (e) { console.error('작년 자료', e); PREV = []; }
     const wait = () => { const X = window.X; if (X && X.ready && X.F) { PREV.forEach(r => { r.요일 = X.wday(r.일자); }); X.extra.push(compute); compute(X.filtered()); dash.render(); } else setTimeout(wait, 100); };
     wait();

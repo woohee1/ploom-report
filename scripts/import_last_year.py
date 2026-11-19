@@ -69,9 +69,10 @@ def done(v):
 def sbux(v):
     if v is None or (isinstance(v, float) and v != v): return 0
     m = re.match(r"(\d+)", v); return int(m.group(1)) if m else 0
+import export_rows_pack as P
 stores = {d["k"]: d for d in json.load(open(os.path.join(ROOT, "ref", "stores.json"), encoding="utf-8"))}
 addr = code.map(lambda k: stores.get(k, {}).get("a"))
-sido = addr.map(lambda a: a.split()[0] if isinstance(a, str) and a.split() else None).replace({"경기도": "경기", "서울시": "서울", "서울특별시": "서울", "인천광역시": "인천"})
+sido = addr.map(lambda a: a.split()[0] if isinstance(a, str) and a.split() else None).map(P.sido)
 sgg = addr.map(lambda a: a.split()[1] if isinstance(a, str) and len(a.split()) > 1 else None)
 out = pd.DataFrame({
     "일자": pd.to_datetime(s["타임스탬프"], errors="coerce").dt.strftime("%Y-%m-%d"),
@@ -83,7 +84,6 @@ out = pd.DataFrame({
     "회원가입": S("회원가입").map(done), "카카오": S("카카오").map(done), "스타벅스": S("스타벅스").map(sbux), "경로": S("판매경로").map(route),
 })
 out = out[out["일자"].notna()]
-import export_rows_pack as P
 P.save("rows_prev.json", P.pack(out))
 print(out.groupby(out["일자"].str[:7]).agg(건수=("수량", "size"), 판매=("수량", "sum"), 지역=("시도", lambda x: x.notna().mean().round(2))).to_string())
 for c in ["브랜드", "구분", "경로", "색상", "연령대", "사용제품"]: print(c, out[c].value_counts().to_dict())
