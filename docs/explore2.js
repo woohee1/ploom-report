@@ -152,7 +152,7 @@
       </div>
       <div class="grid3" style="margin-top:var(--cds-gap-md)">
         <div class="card"><h3>연령대 × 성별 판매 (대)</h3><div class="legend" data-source="x_customer_all"><span><i data-c="0"></i>남자</span><span><i data-c="1"></i>여자</span></div><div class="chart" data-draw="vbar" data-source="x_customer_all" data-x="연령대" data-y="판매" data-series="성별" data-order="남자,여자" data-grouped="1"></div></div>
-        <div class="card"><h3>기존 사용 제품 (대)</h3><div class="chart sm" data-draw="hbar" data-source="x_product_all" data-label="사용제품" data-value="판매"></div></div>
+        <div class="card"><h3>기존 사용 제품 (대)</h3><div class="chart sm" data-draw="hbar" data-source="x_product_all" data-label="사용제품" data-value="판매" data-pct></div></div>
         <div class="card"><h3>리필스틱 종류 (대, 시트 달만)</h3><div class="chart sm" data-draw="hbar" data-source="x_stick_all" data-label="스틱" data-value="판매"></div>
           <h3 style="margin-top:14px">판매 경로 (대)</h3><div class="chart sm" data-draw="hbar" data-source="x_route" data-label="경로" data-value="판매"></div></div>
       </div>`);

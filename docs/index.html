@@ -475,7 +475,7 @@ main.pl{max-width:none;margin:0;width:100%;box-sizing:border-box;padding:26px 32
       <div class="chart sm" data-draw="hbar" data-source="color" data-label="색상" data-value="판매"></div>
     </div>
     <div class="card"><h3>구매자 기존 사용 제품 (대)</h3>
-      <div class="chart sm" data-draw="hbar" data-source="product" data-label="사용제품" data-value="판매"></div>
+      <div class="chart sm" data-draw="hbar" data-source="product" data-label="사용제품" data-value="판매" data-pct></div>
     </div>
     <div class="card"><h3>리필스틱 종류 (대)</h3>
       <div class="chart" data-draw="hbar" data-source="stick" data-label="스틱" data-value="판매"></div>
@@ -602,7 +602,9 @@ const dash = (() => {
     const labels = rows.map(r => L2 ? `${r[L2]} · ${r[L]}` : String(r[L]));
     const tx = lab.selectAll('text').data(labels).join('text').attr('x', 0).attr('y', (d, i) => mT + i * rh + rh / 2 + 4).text(d => d);
     let lw = 0; tx.each(function () { lw = Math.max(lw, this.getComputedTextLength()); });
-    const vals = rows.map(r => `${f(r[V])}${S ? ` (${fs(r[S])}${unit})` : ''}`);
+    const showPct = el.dataset.pct !== undefined, tot = d3.sum(rows, r => +r[V] || 0);
+    const pctOf = r => tot ? `${(100 * (+r[V] || 0) / tot).toFixed(1)}%` : '';
+    const vals = rows.map(r => `${f(r[V])}${S ? ` (${fs(r[S])}${unit})` : ''}${showPct ? ` (${pctOf(r)})` : ''}`);
     const vt = svg.append('g').selectAll('text').data(vals).join('text').attr('class', 'val').text(d => d);
     let vw = 0; vt.each(function () { vw = Math.max(vw, this.getComputedTextLength()); });
     const x0 = Math.min(lw + 10, W * 0.45), x1 = W - vw - 8;
@@ -615,7 +617,7 @@ const dash = (() => {
     el.dataset.drawn = '1';
     vt.attr('x', d => 0).attr('y', (d, i) => mT + i * rh + rh / 2 + 4).attr('x', (d, i) => x0 + x(+rows[i][V] || 0) + 6);
     svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', 0).attr('y', (d, i) => mT + i * rh).attr('width', W).attr('height', rh).attr('fill', 'transparent')
-      .on('mousemove', (ev, d) => { const i = rows.indexOf(d); showTip(el, t, ev, [line(labels[i]), line(V, f(d[V]), 's'), S ? line(S, fs(d[S]) + unit, 's') : line('')]); })
+      .on('mousemove', (ev, d) => { const i = rows.indexOf(d); showTip(el, t, ev, [line(labels[i]), line(V, f(d[V]), 's'), S ? line(S, fs(d[S]) + unit, 's') : (showPct ? line('비중', pctOf(d), 's') : line(''))]); })
       .on('mouseleave', () => { t.hidden = true; });
   });
 
@@ -832,6 +834,6 @@ showPanel();
 let _rt; addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(() => dash.render(), 150); });
 </script>
 <script src="explore.js?v=6"></script>
-<script src="explore2.js?v=3"></script><script src="explore3.js?v=2"></script>
+<script src="explore2.js?v=4"></script><script src="explore3.js?v=2"></script>
 </body>
 </html>
